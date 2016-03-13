@@ -1,0 +1,13 @@
+textarea {
+    resize: vertical; /* Disable horizontal resizing in text area */
+}
+
+.chat-area {
+    overflow: auto; /* Enable scroll bar if needed */
+    height: 50vh; /* Chat area will be 60% of view port height */
+    padding: 10px;
+}
+
+.container {
+    padding-top: 40px;
+}

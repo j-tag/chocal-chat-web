@@ -4,9 +4,124 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "5441a35ce5a6eddab25f2328015789c1",
-    "content-hash": "ae9056ab5abfc65152bfb2d8564e5411",
+    "hash": "4ee2e418a0d0901822bfdf51d62b1989",
+    "content-hash": "55a9db9bdf6fdb72729917ac65197738",
     "packages": [
+        {
+            "name": "afarkas/html5shiv",
+            "version": "3.7.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/aFarkas/html5shiv.git",
+                "reference": "ed28c56c071bddfe7d635ad88995674957a016be"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/aFarkas/html5shiv/zipball/ed28c56c071bddfe7d635ad88995674957a016be",
+                "reference": "ed28c56c071bddfe7d635ad88995674957a016be",
+                "shasum": ""
+            },
+            "type": "component",
+            "extra": {
+                "component": {
+                    "scripts": [
+                        "dist/html5shiv.js"
+                    ]
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT",
+                "GPL-2.0"
+            ],
+            "description": "Defacto way to enable use of HTML5 sectioning elements in legacy Internet Explorer.",
+            "homepage": "http://paulirish.com/2011/the-history-of-the-html5-shiv/",
+            "time": "2015-07-20 20:04:00"
+        },
+        {
+            "name": "components/jquery",
+            "version": "1.12.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/components/jquery.git",
+                "reference": "b3879795fd6fa63ef364cdf9ae6cd779d61edfb2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/components/jquery/zipball/b3879795fd6fa63ef364cdf9ae6cd779d61edfb2",
+                "reference": "b3879795fd6fa63ef364cdf9ae6cd779d61edfb2",
+                "shasum": ""
+            },
+            "type": "component",
+            "extra": {
+                "component": {
+                    "scripts": [
+                        "jquery.js"
+                    ],
+                    "files": [
+                        "jquery.min.js",
+                        "jquery.min.map",
+                        "jquery-migrate.js",
+                        "jquery-migrate.min.js"
+                    ]
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "John Resig",
+                    "email": "jeresig@gmail.com"
+                }
+            ],
+            "description": "jQuery JavaScript Library",
+            "homepage": "http://jquery.com",
+            "time": "2016-02-24 08:51:35"
+        },
+        {
+            "name": "puresoft/easy-lang",
+            "version": "v2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/J-TAG/easy-lang.git",
+                "reference": "5da72595e31e89bd4bb01f3ba9bebf592d13f262"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/J-TAG/easy-lang/zipball/5da72595e31e89bd4bb01f3ba9bebf592d13f262",
+                "reference": "5da72595e31e89bd4bb01f3ba9bebf592d13f262",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "type": "class",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Hesam Gholami",
+                    "email": "hesamgholami@yahoo.com",
+                    "homepage": "https://hesam.org",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A simple PHP class for creating pages with multiple languages",
+            "homepage": "https://github.com/J-TAG/easy-lang",
+            "keywords": [
+                "easy",
+                "language",
+                "localization",
+                "multi-language",
+                "php",
+                "translate"
+            ],
+            "time": "2016-03-13 10:49:03"
+        },
         {
             "name": "twbs/bootstrap",
             "version": "v3.3.6",

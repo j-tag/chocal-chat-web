@@ -1,5 +1,8 @@
 {
   "require": {
-    "twbs/bootstrap": "*"
+    "twbs/bootstrap": "3.*",
+    "puresoft/easy-lang": "^2.0",
+    "afarkas/html5shiv": "^3.7",
+    "components/jquery": "1.*"
   }
 }
