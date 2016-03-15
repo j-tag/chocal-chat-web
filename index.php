@@ -39,16 +39,16 @@ $chocal = new ChocalWeb();
 <body>
 
 <!-- Register modal -->
-<div class="modal fade" id="joinModal" tabindex="-1" role="dialog" aria-labelledby="joinModalLabel">
+<div class="modal fade" id="join-modal" tabindex="-1" role="dialog" aria-labelledby="join-modal-label">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
 						aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title" id="joinModalLabel">Join Chat</h4>
+				<h4 class="modal-title" id="join-modal-label">Join Chat</h4>
 			</div>
 
-			<form role="form" action="index.php" method="post" enctype="multipart/form-data">
+			<form id="join-form" role="form" action="" method="post" enctype="multipart/form-data">
 				<div class="modal-body">
 
 					<p>Easily join Chocal Chat to communicate with your local network friends.</p>
@@ -69,10 +69,10 @@ $chocal = new ChocalWeb();
 					<label for="server-ip">Server Address</label>
 					<div id="server-ip" class="input-group">
 						<span class="input-group-addon" id="schema-addon">ws://</span>
-						<input type="text" name="ip" class="form-control" placeholder="i.e. 192.168.1.2"
+						<input id="ip" type="text" name="ip" class="form-control" placeholder="i.e. 192.168.1.2"
 						       aria-describedby="schema-addon" required>
 						<span class="input-group-addon" id="url-colon-addon">:</span>
-						<input type="text" name="port" class="form-control" placeholder="i.e. 36911"
+						<input id="port" type="text" name="port" class="form-control" placeholder="i.e. 36911"
 						       aria-describedby="url-colon-addon" required>
 
 					</div>
@@ -133,7 +133,7 @@ $chocal = new ChocalWeb();
 				<p>Use Chocal Chat to communicate with your friends!</p>
 				<!-- Button trigger modal -->
 				<p class="text-center">
-					<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#joinModal">
+					<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#join-modal">
 						JOIN CHAT
 					</button>
 				</p>
@@ -257,12 +257,16 @@ $chocal = new ChocalWeb();
 <script type="text/javascript">
 
 	var myUserKey = null;
+	var myName = null;
 	var avatarData = null;
+	var wsUri = "ws://192.168.1.12:36911";
+	var websocket = null;
 
 	// This function will bring back any alert related to avatar picker
 	function restoreAvatarAlerts() {
 		$('#avatar-incompatible-alert').addClass('hide');
 		$('#avatar-preview-area').addClass('hide');
+		$('#avatar-preview').attr('src', 'assets/img/no-avatar.png');
 		$('#avatar-invalid-image-alert').addClass('hide');
 
 		$('#avatar-picker').removeAttr('disabled');
@@ -312,9 +316,22 @@ $chocal = new ChocalWeb();
 		}
 	};
 
+	var joinChat = function (evt) {
+		evt.preventDefault();
+		// Get form data
+		var data = $("#join-form :input").serializeArray();
+		myName = data[0].value;
+		var ip = data[1].value;
+		var port = data[2].value;
+
+		// Try to connect to web socket
+		initWebSocket(ip, port);
+	};
 
 	// Page load up function
 	$(function () {
+
+
 
 		// Set Avatar picker event handler
 		if (window.File && window.FileReader && window.FileList && window.Blob) {
@@ -325,23 +342,29 @@ $chocal = new ChocalWeb();
 			$('#avatar-picker').attr('disabled', true);
 		}
 
+		// Set join chat button event listener
+		$("#join-form").on('submit', joinChat);
+
 	});
 
 	/* Web socket */
 
-	function debug(message) {
-		$('.chat-area').append(message);
+	// This function will run when server sent back request acception message
+	function accepted(message) {
+		// Set user key
+		myUserKey = message.user_key;
+		// Close join dialog and initialize messaging
+		$('#join-modal').modal('hide');
 	}
 
-	function sendRegisterMessage() {
+	function sendRegisterMessage(userName, avatarData) {
 
 		if (websocket != null) {
-			var myName = document.getElementById("name").value;
 			var msg = JSON.stringify({
-				type: "register", name: myName
+				type: "register", name: userName, image: avatarData
 			});
 			websocket.send(msg);
-			console.log("string sent :", '"' + msg + '"');
+			console.log('Register request sent:', msg);
 		}
 	}
 
@@ -351,39 +374,39 @@ $chocal = new ChocalWeb();
 			document.getElementById("txtMessage").value = "";
 			var json = {type: "plain", image: "", message: msg, user_key: myUserKey};
 			websocket.send(JSON.stringify(json));
-			console.log("string sent :", '"' + msg + '"');
+			console.log("String sent:", msg);
 		}
 	}
-	var wsUri = "ws://192.168.1.12:36911";
-	var websocket = null;
 
-	function initWebSocket() {
+	function initWebSocket(ip, port) {
 		try {
 			if (typeof MozWebSocket == 'function')
 				WebSocket = MozWebSocket;
 			if (websocket && websocket.readyState == 1)
 				websocket.close();
+			var wsUri = "ws://" + ip + ":" + port;
 			websocket = new WebSocket(wsUri);
 			websocket.onopen = function (evt) {
-				debug("CONNECTED");
-				sendRegisterMessage();
+				console.info("Connected to web socket.");
+				// After connection we should send register request message
+				sendRegisterMessage(myName, avatarData);
 			};
 			websocket.onclose = function (evt) {
-				debug("DISCONNECTED");
+				console.error("Web socket disconnected.");
 			};
 			websocket.onmessage = function (evt) {
 				var message = JSON.parse(evt.data);
-				console.log("Message received :", evt.data);
+				console.log("Message received:", evt.data);
 				if (message.type == "accepted") {
-					myUserKey = message.user_key;
+					accepted(message);
 				}
-				debug(message.message);
+				// TODO : Show message to chat area
 			};
 			websocket.onerror = function (evt) {
-				debug('ERROR: ' + evt.data);
+				console.error("Web socket error:", evt.data);
 			};
 		} catch (exception) {
-			debug('ERROR: ' + exception);
+			console.error('Error:', exception);
 		}
 	}
 
