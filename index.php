@@ -48,7 +48,7 @@ $chocal = new ChocalWeb();
 				<h4 class="modal-title" id="joinModalLabel">Join Chat</h4>
 			</div>
 
-			<form>
+			<form role="form" action="index.php" method="post" enctype="multipart/form-data">
 				<div class="modal-body">
 
 					<p>Easily join Chocal Chat to communicate with your local network friends.</p>
@@ -57,8 +57,8 @@ $chocal = new ChocalWeb();
 						<div class="row">
 							<div class="col-sm-6">
 								<label for="name">Your Name</label>
-								<input type="text" class="form-control" id="name"
-								       placeholder="e.g. John, Ali, Alex Doe">
+								<input id="name" type="text" name="name" class="form-control"
+								       placeholder="e.g. John, Ali, Alex Doe" required>
 							</div>
 						</div>
 
@@ -69,21 +69,42 @@ $chocal = new ChocalWeb();
 					<label for="server-ip">Server Address</label>
 					<div id="server-ip" class="input-group">
 						<span class="input-group-addon" id="schema-addon">ws://</span>
-						<input type="text" class="form-control" placeholder="i.e. 192.168.1.2"
-						       aria-describedby="schema-addon">
+						<input type="text" name="ip" class="form-control" placeholder="i.e. 192.168.1.2"
+						       aria-describedby="schema-addon" required>
 						<span class="input-group-addon" id="url-colon-addon">:</span>
-						<input type="text" class="form-control" placeholder="i.e. 36911"
-						       aria-describedby="url-colon-addon">
+						<input type="text" name="port" class="form-control" placeholder="i.e. 36911"
+						       aria-describedby="url-colon-addon" required>
 
 					</div>
 					<p class="help-block">Ask the Chocal Chat admin to give you the IP address and port number of Chocal
 						Server.</p>
 
+					<!-- Alert for browsers which don't support HTML5 file APIs -->
+					<div id="avatar-incompatible-alert" class="hide alert alert-warning alert-dismissible fade in"
+					     role="alert">
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+								aria-hidden="true">&times;</span></button>
+						Sorry!, but your browser don't support new web technologies to upload an avatar picture. If you
+						want to have an avatar picture consider using a better web browser.
+					</div>
 
-					<div class="form-group">
-						<label for="avatar">Your Avatar</label>
-						<input type="file" id="avatar">
+					<!-- Avatar file selector -->
+					<div id="avatar-picker-area" class="form-group">
+						<label for="avatar">Your Avatar (Maximum file size is 256kb)</label>
+						<input id="avatar-picker" type="file" name="avatar">
 						<p class="help-block">Optionally you can set an Avatar image for yourself.</p>
+					</div>
+
+					<!-- Avatar preview area -->
+					<div id="avatar-preview-area" class="hide text-center">
+						<p>Your Avatar picture:</p>
+						<img id="avatar-preview" class="img-circle" src="assets/img/no-avatar.png" width="60"
+						     height="60" alt="User Avatar">
+					</div>
+
+					<!-- Avatar invalid image error -->
+					<div id="avatar-invalid-image-alert" class="hide alert alert-danger" role="alert">
+						<p>Invalid Avatar picture is selected.</p>
 					</div>
 
 
@@ -91,7 +112,7 @@ $chocal = new ChocalWeb();
 
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-					<input type="submit" value="JOIN NOW" class="btn btn-success">
+					<button type="submit" class="btn btn-success">JOIN NOW</button>
 				</div>
 
 			</form>
@@ -202,7 +223,8 @@ $chocal = new ChocalWeb();
 
 					<div class="media">
 						<div class="media-body">
-							<p><textarea class="form-control" rows="3" placeholder="Enter your message..."></textarea>
+							<p><textarea id="txtMessage" class="form-control" rows="3"
+							             placeholder="Enter your message..."></textarea>
 							</p>
 
 						</div>
@@ -231,5 +253,180 @@ $chocal = new ChocalWeb();
 <script src="vendor/components/jquery/jquery.min.js"></script>
 <!-- Bootstrap js components -->
 <script src="vendor/twbs/bootstrap/dist/js/bootstrap.min.js"></script>
+<!-- Chocal scripts -->
+<script type="text/javascript">
+
+	var myUserKey = null;
+	var avatarData = null;
+
+	// This function will bring back any alert related to avatar picker
+	function restoreAvatarAlerts() {
+		$('#avatar-incompatible-alert').addClass('hide');
+		$('#avatar-preview-area').addClass('hide');
+		$('#avatar-invalid-image-alert').addClass('hide');
+
+		$('#avatar-picker').removeAttr('disabled');
+	}
+
+	// This function will handle choosing of an Avatar picture when joining chat
+	var handleAvatarFileSelect = function (evt) {
+		var files = evt.target.files;
+		var file = files[0];
+		restoreAvatarAlerts();
+
+		if (files && file) {
+
+			// Check file size
+			if (file.size > 262144 /* Equals to 256 kb */) {
+				// File size is invalid
+				$('#avatar-invalid-image-alert').removeClass('hide');
+				return;
+			}
+
+			// Check file type
+			var fileType = file.type;
+			var match = ["image/jpeg", "image/png", "image/jpg"];
+			if (!((fileType == match[0]) || (fileType == match[1]) || (fileType == match[2]))) {
+				// File type is invalid
+				$('#avatar-invalid-image-alert').removeClass('hide');
+				return;
+			}
+
+			var reader = new FileReader();
+			var readerPreview = new FileReader();
+
+			reader.onload = function (readerEvt) {
+				// Convert binary string Base64 encoded data to ASCII string
+				var binaryString = readerEvt.target.result;
+				avatarData = btoa(binaryString);
+			};
+
+			readerPreview.onload = function (readerEvt) {
+				// Show preview
+				$('#avatar-preview-area').removeClass('hide');
+				$('#avatar-preview').attr('src', readerEvt.target.result);
+			};
+
+			reader.readAsBinaryString(file);
+			readerPreview.readAsDataURL(file);
+		}
+	};
+
+
+	// Page load up function
+	$(function () {
+
+		// Set Avatar picker event handler
+		if (window.File && window.FileReader && window.FileList && window.Blob) {
+			document.getElementById('avatar-picker').addEventListener('change', handleAvatarFileSelect, false);
+		} else {
+			// The File APIs are not fully supported in this browser
+			$('#avatar-incompatible-alert').removeClass('hide');
+			$('#avatar-picker').attr('disabled', true);
+		}
+
+	});
+
+	/* Web socket */
+
+	function debug(message) {
+		$('.chat-area').append(message);
+	}
+
+	function sendRegisterMessage() {
+
+		if (websocket != null) {
+			var myName = document.getElementById("name").value;
+			var msg = JSON.stringify({
+				type: "register", name: myName
+			});
+			websocket.send(msg);
+			console.log("string sent :", '"' + msg + '"');
+		}
+	}
+
+	function sendMessage() {
+		var msg = document.getElementById("txtMessage").value;
+		if (websocket != null) {
+			document.getElementById("txtMessage").value = "";
+			var json = {type: "plain", image: "", message: msg, user_key: myUserKey};
+			websocket.send(JSON.stringify(json));
+			console.log("string sent :", '"' + msg + '"');
+		}
+	}
+	var wsUri = "ws://192.168.1.12:36911";
+	var websocket = null;
+
+	function initWebSocket() {
+		try {
+			if (typeof MozWebSocket == 'function')
+				WebSocket = MozWebSocket;
+			if (websocket && websocket.readyState == 1)
+				websocket.close();
+			websocket = new WebSocket(wsUri);
+			websocket.onopen = function (evt) {
+				debug("CONNECTED");
+				sendRegisterMessage();
+			};
+			websocket.onclose = function (evt) {
+				debug("DISCONNECTED");
+			};
+			websocket.onmessage = function (evt) {
+				var message = JSON.parse(evt.data);
+				console.log("Message received :", evt.data);
+				if (message.type == "accepted") {
+					myUserKey = message.user_key;
+				}
+				debug(message.message);
+			};
+			websocket.onerror = function (evt) {
+				debug('ERROR: ' + evt.data);
+			};
+		} catch (exception) {
+			debug('ERROR: ' + exception);
+		}
+	}
+
+	function stopWebSocket() {
+		if (websocket)
+			websocket.close();
+	}
+
+	function checkSocket() {
+		if (websocket != null) {
+			var stateStr;
+			switch (websocket.readyState) {
+				case 0:
+				{
+					stateStr = "CONNECTING";
+					break;
+				}
+				case 1:
+				{
+					stateStr = "OPEN";
+					break;
+				}
+				case 2:
+				{
+					stateStr = "CLOSING";
+					break;
+				}
+				case 3:
+				{
+					stateStr = "CLOSED";
+					break;
+				}
+				default:
+				{
+					stateStr = "UNKNOW";
+					break;
+				}
+			}
+			debug("WebSocket state = " + websocket.readyState + " ( " + stateStr + " )");
+		} else {
+			debug("WebSocket is null");
+		}
+	}
+</script>
 </body>
 </html>
