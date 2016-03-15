@@ -131,10 +131,16 @@ $chocal = new ChocalWeb();
 			<div class="jumbotron">
 				<h1>Chocal Chat</h1>
 				<p>Use Chocal Chat to communicate with your friends!</p>
-				<!-- Button trigger modal -->
+
 				<p class="text-center">
-					<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#join-modal">
+					<!-- Join button -->
+					<button id="join-button" type="button" class="btn btn-primary btn-lg" data-toggle="modal"
+					        data-target="#join-modal">
 						JOIN CHAT
+					</button>
+					<!-- Leave button -->
+					<button id="leave-button" type="button" class="hide btn btn-danger btn-lg">
+						Leave Chat
 					</button>
 				</p>
 			</div> <!-- /jumbotron -->
@@ -319,13 +325,23 @@ $chocal = new ChocalWeb();
 	var joinChat = function (evt) {
 		evt.preventDefault();
 		// Get form data
-		var data = $("#join-form :input").serializeArray();
+		var data = $("#join-form").find(":input").serializeArray();
 		myName = data[0].value;
 		var ip = data[1].value;
 		var port = data[2].value;
 
 		// Try to connect to web socket
 		initWebSocket(ip, port);
+	};
+
+	// This function will called when user pressed the leave button
+	var leaveChat = function () {
+		// Kinda reset anything
+
+		// Close web socket
+		websocket.close();
+		// Refresh browser to reset everything back
+		location.reload();
 	};
 
 	// Page load up function
@@ -342,23 +358,35 @@ $chocal = new ChocalWeb();
 			$('#avatar-picker').attr('disabled', true);
 		}
 
-		// Set join chat button event listener
+		// Set join form submit button event listener
 		$("#join-form").on('submit', joinChat);
+
+		// Set leave chat button event listener
+		$("#leave-button").on('click', leaveChat);
 
 	});
 
 	/* Web socket */
 
-	// This function will run when server sent back request acception message
+	// This function will run when server sent back request acceptation message
 	function accepted(message) {
 		// Set user key
 		myUserKey = message.user_key;
+
 		// Close join dialog and initialize messaging
+
+		// Close join dialog
 		$('#join-modal').modal('hide');
+		// Hide join chat button and show leave button
+		$('#join-button').addClass('hide');
+		$('#leave-button').removeClass('hide');
+		// Show user name on top of panel
+		$('.panel-title').html(myName);
 	}
 
-	function sendRegisterMessage(userName, avatarData) {
 
+	// This function will called right after web socket connection
+	function sendRegisterMessage(userName, avatarData) {
 		if (websocket != null) {
 			var msg = JSON.stringify({
 				type: "register", name: userName, image: avatarData
