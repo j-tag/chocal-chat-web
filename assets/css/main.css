@@ -4,7 +4,7 @@ textarea {
 
 .chat-area {
     overflow: auto; /* Enable scroll bar if needed */
-    height: 50vh; /* Chat area will be 60% of view port height */
+    height: 60vh; /* Chat area will be 60% of view port height */
     padding: 15px;
     margin: -15px;
 }

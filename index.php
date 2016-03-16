@@ -229,18 +229,19 @@ $chocal = new ChocalWeb();
 
 					<div class="media">
 						<div class="media-body">
-							<p><textarea id="txtMessage" class="form-control" rows="3"
+							<p><textarea id="txt-message" class="form-control" rows="3"
 							             placeholder="Enter your message..."></textarea>
 							</p>
 
 						</div>
 						<div class="media-right media-middle">
-							<img class="media-object img-circle" src="assets/img/no-avatar.png" alt="User avatar">
+							<img id="send-avatar-image" class="media-object img-circle" src="assets/img/no-avatar.png"
+							     alt="User avatar" width="60" height="60">
 						</div>
 					</div>
 
 					<p>
-						<button class="btn btn-success btn-block" type="button">Send</button>
+						<button id="send-button" class="btn btn-success btn-block" type="button">Send</button>
 					</p>
 
 				</div> <!-- panel-footer -->
@@ -264,9 +265,9 @@ $chocal = new ChocalWeb();
 
 	var myUserKey = null;
 	var myName = null;
+	var myAvatar = null;
 	var avatarData = null;
-	var wsUri = "ws://192.168.1.12:36911";
-	var websocket = null;
+	var webSocket = null;
 
 	// This function will bring back any alert related to avatar picker
 	function restoreAvatarAlerts() {
@@ -315,6 +316,7 @@ $chocal = new ChocalWeb();
 				// Show preview
 				$('#avatar-preview-area').removeClass('hide');
 				$('#avatar-preview').attr('src', readerEvt.target.result);
+				myAvatar = readerEvt.target.result;
 			};
 
 			reader.readAsBinaryString(file);
@@ -339,15 +341,30 @@ $chocal = new ChocalWeb();
 		// Kinda reset anything
 
 		// Close web socket
-		websocket.close();
+		webSocket.close();
 		// Refresh browser to reset everything back
 		location.reload();
 	};
 
+	// Will send a plain text message to Chocal Server
+	function sendTextMessage() {
+		if (webSocket != null) {
+			var text = document.getElementById("txt-message").value;
+			document.getElementById("txt-message").value = "";
+			var json = {type: "plain", image: "", message: text, user_key: myUserKey};
+			webSocket.send(JSON.stringify(json));
+			console.log("Data sent:", JSON.stringify(json));
+		}
+	}
+
+	// General function to send messages
+	function send() {
+		// TODO : Decide to send plain text message or an image message
+		sendTextMessage();
+	}
+
 	// Page load up function
 	$(function () {
-
-
 
 		// Set Avatar picker event handler
 		if (window.File && window.FileReader && window.FileList && window.Blob) {
@@ -363,6 +380,9 @@ $chocal = new ChocalWeb();
 
 		// Set leave chat button event listener
 		$("#leave-button").on('click', leaveChat);
+
+		// Set send button event listener
+		$("#send-button").on('click', send);
 
 	});
 
@@ -382,55 +402,85 @@ $chocal = new ChocalWeb();
 		$('#leave-button').removeClass('hide');
 		// Show user name on top of panel
 		$('.panel-title').html(myName);
+		// Set avatar picture
+		if (myAvatar == null) {
+			$('#send-avatar-image').attr('src', "assets/img/no-avatar.png");
+		} else {
+			$('#send-avatar-image').attr('src', myAvatar);
+		}
 	}
 
 
 	// This function will called right after web socket connection
 	function sendRegisterMessage(userName, avatarData) {
-		if (websocket != null) {
+		if (webSocket != null) {
 			var msg = JSON.stringify({
 				type: "register", name: userName, image: avatarData
 			});
-			websocket.send(msg);
+			webSocket.send(msg);
 			console.log('Register request sent:', msg);
 		}
 	}
 
-	function sendMessage() {
-		var msg = document.getElementById("txtMessage").value;
-		if (websocket != null) {
-			document.getElementById("txtMessage").value = "";
-			var json = {type: "plain", image: "", message: msg, user_key: myUserKey};
-			websocket.send(JSON.stringify(json));
-			console.log("String sent:", msg);
+	// This function will show a standard Chocal plain message type in chat area
+	function appendTextMessage(json) {
+		var avatar = null;
+		var $chatArea = $('.chat-area');
+
+		if (json.name == myName) {
+
+			// Sender is this user himself
+			avatar = myAvatar == null ? "assets/img/no-avatar.png" : myAvatar;
+
+			$chatArea.append("<div class=\"media\"><div class=\"media-body well\">\n<h4 class=\"media-heading\">" + myName + "</h4>\n" + json.message + "\n</div>\n<div class=\"media-right media-middle\">\n<img class=\"media-object img-circle\" src=\"" + avatar + "\" alt=\"User Avatar\">\n</div>\n</div>");
+
+		} else {
+
+			// Sender is another user
+			avatar = "assets/img/no-avatar.png";// TODO : Get avatar path from php side
+
+			$chatArea.append("<div class=\"media\">\n<div class=\"media-left media-middle\">\n<img class=\"media-object img-circle\" src=\"" + avatar + "\" alt=\"User Avatar\">\n</div>\n<div class=\"media-body well\">\n<h4 class=\"media-heading\">" + json.name + "</h4>\n" + json.message + "\n</div>\n</div>");
+
 		}
+
+		// Scroll down
+		$chatArea.scrollTop($chatArea[0].scrollHeight);
+
 	}
+
 
 	function initWebSocket(ip, port) {
 		try {
 			if (typeof MozWebSocket == 'function')
 				WebSocket = MozWebSocket;
-			if (websocket && websocket.readyState == 1)
-				websocket.close();
+			if (webSocket && webSocket.readyState == 1)
+				webSocket.close();
 			var wsUri = "ws://" + ip + ":" + port;
-			websocket = new WebSocket(wsUri);
-			websocket.onopen = function (evt) {
+			webSocket = new WebSocket(wsUri);
+			webSocket.onopen = function (evt) {
 				console.info("Connected to web socket.");
 				// After connection we should send register request message
 				sendRegisterMessage(myName, avatarData);
 			};
-			websocket.onclose = function (evt) {
+			webSocket.onclose = function (evt) {
 				console.error("Web socket disconnected.");
 			};
-			websocket.onmessage = function (evt) {
+			webSocket.onmessage = function (evt) {
 				var message = JSON.parse(evt.data);
 				console.log("Message received:", evt.data);
+
+				// Normal text message
+				if (message.type == "plain") {
+					appendTextMessage(message);
+				}
+
+				// Handle acceptation message
 				if (message.type == "accepted") {
 					accepted(message);
 				}
-				// TODO : Show message to chat area
+
 			};
-			websocket.onerror = function (evt) {
+			webSocket.onerror = function (evt) {
 				console.error("Web socket error:", evt.data);
 			};
 		} catch (exception) {
@@ -439,14 +489,14 @@ $chocal = new ChocalWeb();
 	}
 
 	function stopWebSocket() {
-		if (websocket)
-			websocket.close();
+		if (webSocket)
+			webSocket.close();
 	}
 
 	function checkSocket() {
-		if (websocket != null) {
+		if (webSocket != null) {
 			var stateStr;
-			switch (websocket.readyState) {
+			switch (webSocket.readyState) {
 				case 0:
 				{
 					stateStr = "CONNECTING";
@@ -469,13 +519,13 @@ $chocal = new ChocalWeb();
 				}
 				default:
 				{
-					stateStr = "UNKNOW";
+					stateStr = "UNKNOWN";
 					break;
 				}
 			}
-			debug("WebSocket state = " + websocket.readyState + " ( " + stateStr + " )");
+			console.log("WebSocket state :", webSocket.readyState, "( " + stateStr + " )");
 		} else {
-			debug("WebSocket is null");
+			console.warn("WebSocket is null");
 		}
 	}
 </script>
