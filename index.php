@@ -134,7 +134,7 @@ $chocal = new ChocalWeb();
 			<p class="text-center">
 				<!-- Join button -->
 				<button id="join-button" type="button" class="btn btn-primary btn-lg" data-toggle="modal"
-				        data-target="#join-modal">
+				        data-target="#join-modal" autofocus>
 					JOIN CHAT
 				</button>
 			</p>
@@ -145,23 +145,24 @@ $chocal = new ChocalWeb();
 	<!-- Row for chat view -->
 	<div id="chat-row" class="hide row">
 
-		<div class="col-md-4">
+		<div class="col-sm-3">
 
-			<div class="jumbotron">
-				<h1>Chocal Chat</h1>
-				<p>Use Chocal Chat to communicate with your friends!</p>
+			<p id="online-users" class="label label-success"><!-- Online users will be shown here --></p>
 
-				<p class="text-center">
-					<!-- Leave button -->
-					<button id="leave-button" type="button" class="btn btn-danger btn-lg">
-						Leave Chat
-					</button>
-				</p>
-			</div> <!-- /jumbotron -->
+			<ul id="online-list" class="list-group">
+				<!-- Online users will be listed here -->
+			</ul>
+
+			<p class="text-center">
+				<!-- Leave button -->
+				<button id="leave-button" type="button" class="btn btn-danger btn-lg">
+					Leave Chat
+				</button>
+			</p>
 
 		</div>
 
-		<div class="col-md-8">
+		<div class="col-sm-9">
 
 
 			<div class="panel panel-default">
@@ -227,6 +228,205 @@ $chocal = new ChocalWeb();
 	var avatarData = null;
 	var webSocket = null;
 	var $chatArea = $('.chat-area');
+	var userIds = [];
+	var onlineCounter = 0;
+
+	function goToLast() {
+		// Scroll down
+		$chatArea.animate({
+			scrollTop: $chatArea[0].scrollHeight
+		}, 1000);
+	}
+
+	// This function will show a standard Chocal plain message type in chat area
+	function appendTextMessage(json) {
+		var html = null;
+		var avatar = null;
+
+
+		if (json.name == myName) {
+
+			// Sender is this user himself
+			avatar = myAvatar == null ? 'assets/img/no-avatar.png' : myAvatar;
+
+			html = "<div class=\"media\"><div class=\"media-body well mine\">\n<h4 class=\"media-heading media-name\">" + "You" + "</h4>\n" + json.message + "\n</div>\n<div class=\"media-right media-middle\">\n<img class=\"media-object img-circle\" src=\"" + avatar + "\" alt=\"User Avatar\" width=\"60\" height=\"60\">\n</div>\n</div>";
+
+		} else {
+
+			// Sender is another user
+			avatar = 'assets/img/no-avatar.png';// TODO : Get avatar path from php side
+
+			html = "<div class=\"media\">\n<div class=\"media-left media-middle\">\n<img class=\"media-object img-circle\" src=\"" + avatar + "\" alt=\"User Avatar\" width=\"60\" height=\"60\">\n</div>\n<div class=\"media-body well\">\n<h4 class=\"media-heading media-name\">" + json.name + "</h4>\n" + json.message + "\n</div>\n</div>";
+
+		}
+
+		// Animate content
+		$(html).hide().appendTo($chatArea).slideDown();
+
+		// Scroll down
+		goToLast();
+
+	}
+
+	// This function will show a Chocal Chat info message in chat view
+	function appendInfoMessage(json) {
+		var html = "<div class=\"alert alert-info text-center info-message\"><strong>" + json.message + "</strong></div>";
+		$(html).hide().appendTo($chatArea).slideDown();
+		// Scroll down
+		goToLast();
+	}
+
+	// This function will run when server sent back request acceptation message
+	function accepted(message) {
+		// Set user key
+		myUserKey = message.user_key;
+
+		// Close join dialog and initialize messaging
+
+		// Close join dialog
+		$('#join-modal').modal('hide');
+		// Hide join chat button and show leave button
+		$('#intro').addClass('hide');
+		$('#chat-row').removeClass('hide');
+		// Show user name on top of panel
+		$('.panel-title').html(myName);
+		// Set avatar picture
+		if (myAvatar == null) {
+			$('#send-avatar-image').attr('src', 'assets/img/no-avatar.png');
+		} else {
+			$('#send-avatar-image').attr('src', myAvatar);
+		}
+		// Change page title
+		document.title = 'Chocal Chat Web Client';
+	}
+
+	// This function will called right after web socket connection
+	function sendRegisterMessage(userName, avatarData) {
+		if (webSocket != null) {
+			var msg = JSON.stringify({
+				type: 'register',
+				name: userName,
+				image: avatarData
+			});
+			webSocket.send(msg);
+			console.log('Register request sent:', msg);
+		}
+	}
+
+	// Will update online users number
+	function updateOnlineUsers() {
+		var text = 'We have %1 online user(s).';
+		$('#online-users').html(text.replace('%1', onlineCounter.toString()));
+	}
+
+	// Returns internal id of user
+	function getInternalUserId(name) {
+
+		for (var index = 0; index < userIds.length; index++) {
+			if (userIds[index] == name) {
+				// Found id
+				return index;
+			}
+		}
+
+		return null;
+	}
+
+	// Will add new user to online list
+	function newUser(name, image) {
+		var $list = $('#online-list');
+		var avatar = 'assets/img/no-avatar.png'; // TODO : Get avatar path
+
+		// Create an internal id for user
+		userIds.push(name);
+
+		var html = "<li id=\"u" + getInternalUserId(name) + "\" class=\"list-group-item\">\n<h4 class=\"list-group-item-heading media-name\">\n<img class=\"img-circle\" src=\"" + avatar + "\" alt=\"User Avatar\" width=\"60\" height=\"60\" />&nbsp;" + name + "\n</h4>\n</li>";
+
+		// Show with slide effect
+		$(html).hide().appendTo($list).slideDown();
+
+		// Highlight current user name in online list
+		if (name == myName) {
+			$('#u' + getInternalUserId(name)).addClass('active');
+		}
+
+		onlineCounter++;
+		updateOnlineUsers();
+	}
+
+	// Will remove a user from online list
+	function removeUser(name) {
+		var index = getInternalUserId(name);
+		$('#u' + index).slideUp();
+		userIds[index] = undefined;
+
+		onlineCounter--;
+		updateOnlineUsers();
+	}
+
+	// This function will handle update messages
+	function handleUpdate(json) {
+		switch (json.update) {
+			case 'userJoined':
+				newUser(json.name, json.image);
+				break;
+			case 'userLeft':
+				removeUser(json.name);
+				break;
+			default:
+				break;
+		}
+	}
+
+	// This function will be called at join operation
+	function initWebSocket(ip, port) {
+		try {
+			if (typeof MozWebSocket == 'function')
+				WebSocket = MozWebSocket;
+			if (webSocket && webSocket.readyState == 1)
+				webSocket.close();
+			var wsUri = 'ws://' + ip + ':' + port;
+			webSocket = new WebSocket(wsUri);
+			webSocket.onopen = function (evt) {
+				console.info('Connected to web socket.');
+				// After connection we should send register request message
+				sendRegisterMessage(myName, avatarData);
+			};
+			webSocket.onclose = function (evt) {
+				console.error('Web socket disconnected.');
+			};
+			webSocket.onmessage = function (evt) {
+				var message = JSON.parse(evt.data);
+				console.log('Message received:', message);
+
+				// Normal text message
+				if (message.type == 'plain') {
+					appendTextMessage(message);
+				}
+
+				// Update message
+				if (message.type == 'update') {
+					handleUpdate(message);
+				}
+
+				// Info message
+				if (message.type == 'info') {
+					appendInfoMessage(message);
+				}
+
+				// Handle acceptation message
+				if (message.type == 'accepted') {
+					accepted(message);
+				}
+
+			};
+			webSocket.onerror = function (evt) {
+				console.error('Web socket error:', evt.data);
+			};
+		} catch (exception) {
+			console.error('Error:', exception);
+		}
+	}
 
 	// This function will bring back any alert related to avatar picker
 	function restoreAvatarAlerts() {
@@ -255,7 +455,7 @@ $chocal = new ChocalWeb();
 
 			// Check file type
 			var fileType = file.type;
-			var match = ["image/jpeg", "image/png", "image/jpg"];
+			var match = ['image/jpeg', 'image/png', 'image/jpg'];
 			if (!((fileType == match[0]) || (fileType == match[1]) || (fileType == match[2]))) {
 				// File type is invalid
 				$('#avatar-invalid-image-alert').removeClass('hide');
@@ -286,7 +486,7 @@ $chocal = new ChocalWeb();
 	var joinChat = function (evt) {
 		evt.preventDefault();
 		// Get form data
-		var data = $("#join-form").find(":input").serializeArray();
+		var data = $('#join-form').find(':input').serializeArray();
 		myName = data[0].value;
 		var ip = data[1].value;
 		var port = data[2].value;
@@ -295,15 +495,20 @@ $chocal = new ChocalWeb();
 		initWebSocket(ip, port);
 	};
 
+	function stopWebSocket() {
+		if (webSocket)
+			webSocket.close();
+	}
+
 	// This function will called when user pressed the leave button
-	var leaveChat = function () {
+	function leaveChat() {
 		// Kinda reset anything
 
 		// Close web socket
-		webSocket.close();
+		stopWebSocket();
 		// Refresh browser to reset everything back
 		location.reload();
-	};
+	}
 
 	// Will send a plain text message to Chocal Server
 	function sendTextMessage() {
@@ -312,16 +517,22 @@ $chocal = new ChocalWeb();
 			var $textArea = $('#txt-message');
 			// Get value of text area
 			var text = $textArea.val();
+			// Check there is a value or not
+			if (text.length < 1) {
+				// Return focus back to text area
+				$textArea.focus();
+				return;
+			}
 			// Clear text area
-			$textArea.val("");
+			$textArea.val('');
 			// Generate json object
-			var json = {type: "plain", image: "", message: text, user_key: myUserKey};
+			var json = {type: 'plain', image: '', message: text, user_key: myUserKey};
 			// Send message
 			webSocket.send(JSON.stringify(json));
 			// Return focus back to text area
 			$textArea.focus();
 			// Log data
-			console.log("Data sent:", JSON.stringify(json));
+			console.log('Data sent:', JSON.stringify(json));
 		}
 	}
 
@@ -338,7 +549,7 @@ $chocal = new ChocalWeb();
 
 		// Set Avatar picker event handler
 		if (window.File && window.FileReader && window.FileList && window.Blob) {
-			document.getElementById('avatar-picker').addEventListener('change', handleAvatarFileSelect, false);
+			$('#avatar-picker').on('change', handleAvatarFileSelect);
 		} else {
 			// The File APIs are not fully supported in this browser
 			$('#avatar-incompatible-alert').removeClass('hide');
@@ -346,146 +557,15 @@ $chocal = new ChocalWeb();
 		}
 
 		// Set join form submit button event listener
-		$("#join-form").on('submit', joinChat);
+		$('#join-form').on('submit', joinChat);
 
 		// Set leave chat button event listener
-		$("#leave-button").on('click', leaveChat);
+		$('#leave-button').on('click', leaveChat);
 
 		// Set send button event listener
-		$("#send-button").on('click', send);
+		$('#send-button').on('click', send);
 
 	});
-
-	function goToLast() {
-		// Scroll down
-		$chatArea.animate({
-			scrollTop: $chatArea[0].scrollHeight
-		}, 1000);
-	}
-
-	// This function will run when server sent back request acceptation message
-	function accepted(message) {
-		// Set user key
-		myUserKey = message.user_key;
-
-		// Close join dialog and initialize messaging
-
-		// Close join dialog
-		$('#join-modal').modal('hide');
-		// Hide join chat button and show leave button
-		$('#intro').addClass('hide');
-		$('#chat-row').removeClass('hide');
-		// Show user name on top of panel
-		$('.panel-title').html(myName);
-		// Set avatar picture
-		if (myAvatar == null) {
-			$('#send-avatar-image').attr('src', "assets/img/no-avatar.png");
-		} else {
-			$('#send-avatar-image').attr('src', myAvatar);
-		}
-		// Change page title
-		document.title = 'Chocal Chat Web Client';
-	}
-
-
-	// This function will called right after web socket connection
-	function sendRegisterMessage(userName, avatarData) {
-		if (webSocket != null) {
-			var msg = JSON.stringify({
-				type: "register", name: userName, image: avatarData
-			});
-			webSocket.send(msg);
-			console.log('Register request sent:', msg);
-		}
-	}
-
-	// This function will show a standard Chocal plain message type in chat area
-	function appendTextMessage(json) {
-		var html = null;
-		var avatar = null;
-
-
-		if (json.name == myName) {
-
-			// Sender is this user himself
-			avatar = myAvatar == null ? "assets/img/no-avatar.png" : myAvatar;
-
-			html = "<div class=\"media\"><div class=\"media-body well mine\">\n<h4 class=\"media-heading media-name\">" + "You" + "</h4>\n" + json.message + "\n</div>\n<div class=\"media-right media-middle\">\n<img class=\"media-object img-circle\" src=\"" + avatar + "\" alt=\"User Avatar\" width=\"60\" height=\"60\">\n</div>\n</div>";
-
-		} else {
-
-			// Sender is another user
-			avatar = "assets/img/no-avatar.png";// TODO : Get avatar path from php side
-
-			html = "<div class=\"media\">\n<div class=\"media-left media-middle\">\n<img class=\"media-object img-circle\" src=\"" + avatar + "\" alt=\"User Avatar\" width=\"60\" height=\"60\">\n</div>\n<div class=\"media-body well\">\n<h4 class=\"media-heading media-name\">" + json.name + "</h4>\n" + json.message + "\n</div>\n</div>";
-
-		}
-
-		// Animate content
-		$(html).hide().appendTo($chatArea).slideDown();
-
-		// Scroll down
-		goToLast();
-
-	}
-
-	// This function will show a Chocal Chat info message in chat view
-	function appendInfoMessage(json) {
-		var html = "<div class=\"alert alert-info text-center info-message\">" + json.message + "</div>";
-		$(html).hide().appendTo($chatArea).slideDown();
-		// Scroll down
-		goToLast();
-	}
-
-	// This function will be called at join operation
-	function initWebSocket(ip, port) {
-		try {
-			if (typeof MozWebSocket == 'function')
-				WebSocket = MozWebSocket;
-			if (webSocket && webSocket.readyState == 1)
-				webSocket.close();
-			var wsUri = "ws://" + ip + ":" + port;
-			webSocket = new WebSocket(wsUri);
-			webSocket.onopen = function (evt) {
-				console.info("Connected to web socket.");
-				// After connection we should send register request message
-				sendRegisterMessage(myName, avatarData);
-			};
-			webSocket.onclose = function (evt) {
-				console.error("Web socket disconnected.");
-			};
-			webSocket.onmessage = function (evt) {
-				var message = JSON.parse(evt.data);
-				console.log("Message received:", message);
-
-				// Normal text message
-				if (message.type == "plain") {
-					appendTextMessage(message);
-				}
-
-				// Info message
-				if (message.type == "info") {
-					appendInfoMessage(message);
-				}
-
-				// Handle acceptation message
-				if (message.type == "accepted") {
-					accepted(message);
-				}
-
-			};
-			webSocket.onerror = function (evt) {
-				console.error("Web socket error:", evt.data);
-			};
-		} catch (exception) {
-			console.error('Error:', exception);
-		}
-	}
-
-	function stopWebSocket() {
-		if (webSocket)
-			webSocket.close();
-	}
 
 	function checkSocket() {
 		if (webSocket != null) {
@@ -493,33 +573,33 @@ $chocal = new ChocalWeb();
 			switch (webSocket.readyState) {
 				case 0:
 				{
-					stateStr = "CONNECTING";
+					stateStr = 'CONNECTING';
 					break;
 				}
 				case 1:
 				{
-					stateStr = "OPEN";
+					stateStr = 'OPEN';
 					break;
 				}
 				case 2:
 				{
-					stateStr = "CLOSING";
+					stateStr = 'CLOSING';
 					break;
 				}
 				case 3:
 				{
-					stateStr = "CLOSED";
+					stateStr = 'CLOSED';
 					break;
 				}
 				default:
 				{
-					stateStr = "UNKNOWN";
+					stateStr = 'UNKNOWN';
 					break;
 				}
 			}
-			console.log("WebSocket state :", webSocket.readyState, "( " + stateStr + " )");
+			console.log('WebSocket state :', webSocket.readyState, '(', stateStr, ')');
 		} else {
-			console.warn("WebSocket is null");
+			console.warn('WebSocket is null');
 		}
 	}
 </script>
