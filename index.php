@@ -161,63 +161,7 @@ $chocal = new ChocalWeb();
 					<!-- Chat area -->
 					<div class="chat-area">
 
-						<div class="media">
-							<div class="media-left media-middle">
-								<a href="#">
-									<img class="media-object img-circle" src="assets/img/no-avatar.png"
-									     alt="User avatar">
-								</a>
-							</div>
-							<div class="media-body well">
-								<h4 class="media-heading">Media heading</h4>
-								Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aspernatur autem corporis
-								culpa dolorem doloremque, earum ipsa laudantium mollitia nobis non nostrum odio omnis
-								placeat, reiciendis repellat suscipit ullam voluptates voluptatibus?
-							</div>
-						</div>
-
-						<div class="media">
-							<div class="media-body well">
-								<h4 class="media-heading">Media heading</h4>
-								Lorem ipsum
-							</div>
-							<div class="media-right media-middle">
-								<a href="#">
-									<img class="media-object img-circle" src="assets/img/no-avatar.png"
-									     alt="User avatar">
-								</a>
-							</div>
-						</div>
-
-						<div class="media">
-							<div class="media-left media-middle">
-								<a href="#">
-									<img class="media-object img-circle" src="assets/img/no-avatar.png"
-									     alt="User avatar">
-								</a>
-							</div>
-							<div class="media-body well">
-								<h4 class="media-heading">Media heading</h4>
-								Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aspernatur autem corporis
-								culpa dolorem doloremque, earum ipsa laudantium mollitia nobis non nostrum odio omnis
-								placeat, reiciendis repellat suscipit ullam voluptates voluptatibus?
-							</div>
-						</div>
-
-						<div class="media">
-							<div class="media-left media-middle">
-								<a href="#">
-									<img class="media-object img-circle" src="assets/img/no-avatar.png"
-									     alt="User avatar">
-								</a>
-							</div>
-							<div class="media-body well">
-								<h4 class="media-heading">Media heading</h4>
-								Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aspernatur autem corporis
-								culpa dolorem doloremque, earum ipsa laudantium mollitia nobis non nostrum odio omnis
-								placeat, reiciendis repellat suscipit ullam voluptates voluptatibus?
-							</div>
-						</div>
+						<!-- Chat messages will be appear here -->
 
 					</div>
 					<!-- /Chat area -->
@@ -349,10 +293,19 @@ $chocal = new ChocalWeb();
 	// Will send a plain text message to Chocal Server
 	function sendTextMessage() {
 		if (webSocket != null) {
-			var text = document.getElementById("txt-message").value;
-			document.getElementById("txt-message").value = "";
+			// Get text area
+			var $textArea = $('#txt-message');
+			// Get value of text area
+			var text = $textArea.val();
+			// Clear text area
+			$textArea.val("");
+			// Generate json object
 			var json = {type: "plain", image: "", message: text, user_key: myUserKey};
+			// Send message
 			webSocket.send(JSON.stringify(json));
+			// Return focus back to text area
+			$textArea.focus();
+			// Log data
 			console.log("Data sent:", JSON.stringify(json));
 		}
 	}
@@ -360,7 +313,11 @@ $chocal = new ChocalWeb();
 	// General function to send messages
 	function send() {
 		// TODO : Decide to send plain text message or an image message
+
+		// Plain text message
 		sendTextMessage();
+
+
 	}
 
 	// Page load up function
@@ -432,19 +389,21 @@ $chocal = new ChocalWeb();
 			// Sender is this user himself
 			avatar = myAvatar == null ? "assets/img/no-avatar.png" : myAvatar;
 
-			$chatArea.append("<div class=\"media\"><div class=\"media-body well\">\n<h4 class=\"media-heading\">" + myName + "</h4>\n" + json.message + "\n</div>\n<div class=\"media-right media-middle\">\n<img class=\"media-object img-circle\" src=\"" + avatar + "\" alt=\"User Avatar\">\n</div>\n</div>");
+			$chatArea.append("<div class=\"media\"><div class=\"media-body well\">\n<h4 class=\"media-heading\">" + myName + "</h4>\n" + json.message + "\n</div>\n<div class=\"media-right media-middle\">\n<img class=\"media-object img-circle\" src=\"" + avatar + "\" alt=\"User Avatar\" width=\"60\" height=\"60\">\n</div>\n</div>");
 
 		} else {
 
 			// Sender is another user
 			avatar = "assets/img/no-avatar.png";// TODO : Get avatar path from php side
 
-			$chatArea.append("<div class=\"media\">\n<div class=\"media-left media-middle\">\n<img class=\"media-object img-circle\" src=\"" + avatar + "\" alt=\"User Avatar\">\n</div>\n<div class=\"media-body well\">\n<h4 class=\"media-heading\">" + json.name + "</h4>\n" + json.message + "\n</div>\n</div>");
+			$chatArea.append("<div class=\"media\">\n<div class=\"media-left media-middle\">\n<img class=\"media-object img-circle\" src=\"" + avatar + "\" alt=\"User Avatar\" width=\"60\" height=\"60\">\n</div>\n<div class=\"media-body well\">\n<h4 class=\"media-heading\">" + json.name + "</h4>\n" + json.message + "\n</div>\n</div>");
 
 		}
 
 		// Scroll down
-		$chatArea.scrollTop($chatArea[0].scrollHeight);
+		$chatArea.animate({
+			scrollTop: $chatArea[0].scrollHeight
+		}, 1000);
 
 	}
 
