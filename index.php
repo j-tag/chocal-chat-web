@@ -199,9 +199,24 @@ $chocal = new ChocalWeb();
 						</div>
 					</div>
 
-					<p>
-						<button id="send-button" class="btn btn-success btn-block" type="button">Send</button>
-					</p>
+					<div class="row">
+
+						<!-- Send button -->
+						<div class="col-xs-10">
+							<p>
+								<button id="send-button" class="btn btn-success btn-block" type="button">Send</button>
+							</p>
+						</div>
+
+						<!-- Attach image button -->
+						<div class="col-xs-2">
+							<p>
+								<input id="attach-button" type="file" class="btn btn-info btn-block">
+							</p>
+						</div>
+
+					</div> <!-- /row -->
+
 
 				</div> <!-- panel-footer -->
 
@@ -226,6 +241,7 @@ $chocal = new ChocalWeb();
 	var myName = null;
 	var myAvatar = null;
 	var avatarData = null;
+	var imageAttachmentData = null;
 	var webSocket = null;
 	var $chatArea = $('.chat-area');
 	var userIds = [];
@@ -303,7 +319,7 @@ $chocal = new ChocalWeb();
 		// Create an internal id for user
 		userIds.push(name);
 
-		var html = "<li id=\"u" + getInternalUserId(name) + "\" class=\"list-group-item\">\n<h4 class=\"list-group-item-heading media-name\">\n<img class=\"img-circle\" src=\"" + avatar + "\" alt=\"User Avatar\" width=\"60\" height=\"60\" />&nbsp;" + name + "\n</h4>\n</li>";
+		var html = "<li id=\"u" + getInternalUserId(name) + "\" class=\"list-group-item\">\n<h4 class=\"list-group-item-heading media-name\">\n<img class=\"img-circle\" src=\"" + avatar + "\" alt=\"User Avatar\" width=\"60\" height=\"60\">&nbsp;" + name + "\n</h4>\n</li>";
 
 		// Show with slide effect
 		$(html).hide().appendTo($list).slideDown();
@@ -497,6 +513,67 @@ $chocal = new ChocalWeb();
 		}
 	};
 
+	// This function will handle choosing of an Attachment picture
+	var handleAttachmentImageSelect = function (evt) {
+		var files = evt.target.files;
+		var file = files[0];
+
+		if (files && file) {
+
+			var $attachButton = $('#attach-button');
+
+			// Check file size
+			if (file.size > 2097152 /* Equals to 2048 kb */) {
+				// File size is invalid
+				$attachButton.popover({
+					title: 'Invalid File Size',
+					content: 'File size must not be more than 2Mb',
+					placement: 'top',
+					trigger: 'focus'
+				});
+				$attachButton.popover('show');
+				return;
+			} else {
+				$attachButton.popover('destroy');
+			}
+
+			// Check file type
+			var fileType = file.type;
+			var match = ['image/jpeg', 'image/png', 'image/jpg'];
+			if (!((fileType == match[0]) || (fileType == match[1]) || (fileType == match[2]))) {
+				// File type is invalid
+				$attachButton.popover({
+					title: 'Invalid File Type',
+					content: 'File must be an image in JPG, JPEG or PNG format',
+					placement: 'top',
+					trigger: 'focus'
+				});
+				$attachButton.popover('show');
+				return;
+			} else {
+				$attachButton.popover('destroy');
+			}
+
+			var reader = new FileReader();
+
+			reader.onload = function (readerEvt) {
+				// Convert binary string Base64 encoded data to ASCII string
+				var binaryString = readerEvt.target.result;
+				imageAttachmentData = btoa(binaryString);
+				// Show success message
+				$attachButton.popover({
+					title: 'File Selected',
+					content: 'Attachment image selected. You can press send button to send it to chat.',
+					placement: 'top',
+					trigger: 'focus'
+				});
+				$attachButton.popover('show');
+			};
+
+			reader.readAsBinaryString(file);
+		}
+	};
+
 	var joinChat = function (evt) {
 		evt.preventDefault();
 		// Get form data
@@ -522,6 +599,39 @@ $chocal = new ChocalWeb();
 		stopWebSocket();
 		// Refresh browser to reset everything back
 		location.reload();
+	}
+
+	// Will send an image message to Chocal Server
+	function sendImageMessage() {
+		if (webSocket != null) {
+			// Check there is any image or not
+			if (imageAttachmentData == null) {
+				return;
+			}
+
+			// Get text area
+			var $textArea = $('#txt-message');
+			// Get value of text area
+			var text = $textArea.val();
+			// Check there is a value or not
+			if (text.length < 1) {
+				// Return focus back to text area
+				$textArea.focus();
+				return;
+			}
+			// Clear text area
+			$textArea.val('');
+			// Generate json object
+			var json = {type: 'image', image: imageAttachmentData, message: text, user_key: myUserKey};
+			// Send message
+			webSocket.send(JSON.stringify(json));
+			// Clear image data
+			imageAttachmentData = null;
+			// Return focus back to text area
+			$textArea.focus();
+			// Log data
+			console.log('Data sent:', JSON.stringify(json));
+		}
 	}
 
 	// Will send a plain text message to Chocal Server
@@ -552,22 +662,28 @@ $chocal = new ChocalWeb();
 
 	// General function to send messages
 	function send() {
-		// TODO : Decide to send plain text message or an image message
 
-		// Plain text message
-		sendTextMessage();
+		if (imageAttachmentData != null) {
+			// Image message
+			sendImageMessage();
+		} else {
+			// Plain text message
+			sendTextMessage();
+		}
 	}
 
 	// Page load up function
 	$(function () {
 
-		// Set Avatar picker event handler
+		// Set Avatar picker and image attachment event handler
 		if (window.File && window.FileReader && window.FileList && window.Blob) {
 			$('#avatar-picker').on('change', handleAvatarFileSelect);
+			$('#attach-button').on('change', handleAttachmentImageSelect);
 		} else {
 			// The File APIs are not fully supported in this browser
 			$('#avatar-incompatible-alert').removeClass('hide');
 			$('#avatar-picker').attr('disabled', true);
+			$('#attach-button').attr('disabled', true);
 		}
 
 		// Set join form submit button event listener
