@@ -276,43 +276,6 @@ $chocal = new ChocalWeb();
 		goToLast();
 	}
 
-	// This function will run when server sent back request acceptation message
-	function accepted(message) {
-		// Set user key
-		myUserKey = message.user_key;
-
-		// Close join dialog and initialize messaging
-
-		// Close join dialog
-		$('#join-modal').modal('hide');
-		// Hide join chat button and show leave button
-		$('#intro').addClass('hide');
-		$('#chat-row').removeClass('hide');
-		// Show user name on top of panel
-		$('.panel-title').html(myName);
-		// Set avatar picture
-		if (myAvatar == null) {
-			$('#send-avatar-image').attr('src', 'assets/img/no-avatar.png');
-		} else {
-			$('#send-avatar-image').attr('src', myAvatar);
-		}
-		// Change page title
-		document.title = 'Chocal Chat Web Client';
-	}
-
-	// This function will called right after web socket connection
-	function sendRegisterMessage(userName, avatarData) {
-		if (webSocket != null) {
-			var msg = JSON.stringify({
-				type: 'register',
-				name: userName,
-				image: avatarData
-			});
-			webSocket.send(msg);
-			console.log('Register request sent:', msg);
-		}
-	}
-
 	// Will update online users number
 	function updateOnlineUsers() {
 		var text = 'We have %1 online user(s).';
@@ -362,6 +325,57 @@ $chocal = new ChocalWeb();
 
 		onlineCounter--;
 		updateOnlineUsers();
+	}
+
+	// Gets an array of users and show them in online list
+	function initOnlineUsers(users) {
+		var user = null;
+
+		for (var index = 0; index < users.length; index++) {
+			user = users[index];
+			newUser(user.name, user.image);
+		}
+
+	}
+
+	// This function will run when server sent back request acceptation message
+	function accepted(message) {
+		// Set user key
+		myUserKey = message.user_key;
+
+		// Close join dialog and initialize messaging
+
+		// Close join dialog
+		$('#join-modal').modal('hide');
+		// Hide join chat button and show leave button
+		$('#intro').addClass('hide');
+		$('#chat-row').removeClass('hide');
+		// Show user name on top of panel
+		$('.panel-title').html(myName);
+		// Set avatar picture
+		if (myAvatar == null) {
+			$('#send-avatar-image').attr('src', 'assets/img/no-avatar.png');
+		} else {
+			$('#send-avatar-image').attr('src', myAvatar);
+		}
+		// Change page title
+		document.title = 'Chocal Chat Web Client';
+
+		// Show current online users
+		initOnlineUsers(message.online_users);
+	}
+
+	// This function will called right after web socket connection
+	function sendRegisterMessage(userName, avatarData) {
+		if (webSocket != null) {
+			var msg = JSON.stringify({
+				type: 'register',
+				name: userName,
+				image: avatarData
+			});
+			webSocket.send(msg);
+			console.log('Register request sent:', msg);
+		}
 	}
 
 	// This function will handle update messages
