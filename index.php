@@ -124,7 +124,26 @@ $chocal = new ChocalWeb();
 
 <div class="container">
 
-	<div class="row">
+	<!-- intro -->
+	<div id="intro">
+
+		<div class="jumbotron">
+			<h1>Chocal Chat</h1>
+			<p>Use Chocal Chat to communicate with your friends!</p>
+
+			<p class="text-center">
+				<!-- Join button -->
+				<button id="join-button" type="button" class="btn btn-primary btn-lg" data-toggle="modal"
+				        data-target="#join-modal">
+					JOIN CHAT
+				</button>
+			</p>
+		</div> <!-- /jumbotron -->
+
+	</div><!-- / intro -->
+
+	<!-- Row for chat view -->
+	<div id="chat-row" class="hide row">
 
 		<div class="col-md-4">
 
@@ -133,13 +152,8 @@ $chocal = new ChocalWeb();
 				<p>Use Chocal Chat to communicate with your friends!</p>
 
 				<p class="text-center">
-					<!-- Join button -->
-					<button id="join-button" type="button" class="btn btn-primary btn-lg" data-toggle="modal"
-					        data-target="#join-modal">
-						JOIN CHAT
-					</button>
 					<!-- Leave button -->
-					<button id="leave-button" type="button" class="hide btn btn-danger btn-lg">
+					<button id="leave-button" type="button" class="btn btn-danger btn-lg">
 						Leave Chat
 					</button>
 				</p>
@@ -316,8 +330,6 @@ $chocal = new ChocalWeb();
 
 		// Plain text message
 		sendTextMessage();
-
-
 	}
 
 	// Page load up function
@@ -355,8 +367,8 @@ $chocal = new ChocalWeb();
 		// Close join dialog
 		$('#join-modal').modal('hide');
 		// Hide join chat button and show leave button
-		$('#join-button').addClass('hide');
-		$('#leave-button').removeClass('hide');
+		$('#intro').addClass('hide');
+		$('#chat-row').removeClass('hide');
 		// Show user name on top of panel
 		$('.panel-title').html(myName);
 		// Set avatar picture
