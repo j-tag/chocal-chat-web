@@ -240,18 +240,34 @@ $chocal = new ChocalWeb();
 	var myUserKey = null;
 	var myName = null;
 	var myAvatar = null;
-	var avatarData = null;
-	var imageAttachmentData = null;
+	var imageAttachment = null;
 	var webSocket = null;
 	var $chatArea = $('.chat-area');
 	var userIds = [];
+	var userAvatars = [];
 	var onlineCounter = 0;
 
+	// Scrolls chat area to end
 	function goToLast() {
 		// Scroll down
 		$chatArea.animate({
 			scrollTop: $chatArea[0].scrollHeight
 		}, 1000);
+	}
+
+	// Gets a base64 encoded data and MIME type and return its data URI
+	function dataMime(data, type) {
+		return 'data:' + type + ';base64, ' + data;
+	}
+
+	// Returns current user avatar
+	function getMyAvatar() {
+		return myAvatar == null ? 'assets/img/no-avatar.png' : dataMime(myAvatar.data, myAvatar.type);
+	}
+
+	// Gets a user name and return his avatar
+	function getAvatar(name) {
+		return userAvatars[getInternalUserId(name)];
 	}
 
 	// This function will show a standard Chocal plain message type in chat area
@@ -263,16 +279,44 @@ $chocal = new ChocalWeb();
 		if (json.name == myName) {
 
 			// Sender is this user himself
-			avatar = myAvatar == null ? 'assets/img/no-avatar.png' : myAvatar;
 
-			html = "<div class=\"media\"><div class=\"media-body well mine\">\n<h4 class=\"media-heading media-name\">" + "You" + "</h4>\n" + json.message + "\n</div>\n<div class=\"media-right media-middle\">\n<img class=\"media-object img-circle\" src=\"" + avatar + "\" alt=\"User Avatar\" width=\"60\" height=\"60\">\n</div>\n</div>";
+			html = "<div class=\"media\"><div class=\"media-body well mine\">\n<h4 class=\"media-heading media-name\">" + "You" + "</h4>\n" + json.message + "\n</div>\n<div class=\"media-right media-middle\">\n<img class=\"media-object img-circle\" src=\"" + getMyAvatar() + "\" alt=\"User Avatar\" width=\"60\" height=\"60\">\n</div>\n</div>";
 
 		} else {
 
 			// Sender is another user
-			avatar = 'assets/img/no-avatar.png';// TODO : Get avatar path from php side
+			avatar = getAvatar(json.name);
 
 			html = "<div class=\"media\">\n<div class=\"media-left media-middle\">\n<img class=\"media-object img-circle\" src=\"" + avatar + "\" alt=\"User Avatar\" width=\"60\" height=\"60\">\n</div>\n<div class=\"media-body well\">\n<h4 class=\"media-heading media-name\">" + json.name + "</h4>\n" + json.message + "\n</div>\n</div>";
+
+		}
+
+		// Animate content
+		$(html).hide().appendTo($chatArea).slideDown();
+
+		// Scroll down
+		goToLast();
+
+	}
+
+	// This function will show a Chocal image message type in chat area
+	function appendImageMessage(json) {
+		var html = null;
+		var avatar = null;
+
+
+		if (json.name == myName) {
+
+			// Sender is this user himself
+
+			html = "<div class=\"media\"><div class=\"media-body well mine\">\n<h4 class=\"media-heading media-name\">" + "You" + "</h4>\n<img src=\"" + dataMime(json.image, json.image_type) + "\" class=\"img-responsive img-rounded center-block\" alt=\"Attachment image\"><br>\n" + json.message + "\n</div>\n<div class=\"media-right media-middle\">\n<img class=\"media-object img-circle\" src=\"" + getMyAvatar() + "\" alt=\"User Avatar\" width=\"60\" height=\"60\">\n</div>\n</div>";
+
+		} else {
+
+			// Sender is another user
+			avatar = getAvatar(json.name);
+
+			html = "<div class=\"media\">\n<div class=\"media-left media-middle\">\n<img class=\"media-object img-circle\" src=\"" + avatar + "\" alt=\"User Avatar\" width=\"60\" height=\"60\">\n</div>\n<div class=\"media-body well\">\n<h4 class=\"media-heading media-name\">" + json.name + "</h4>\n<img src=\"" + dataMime(json.image, json.image_type) + "\" class=\"img-responsive img-rounded center-block\" alt=\"Attachment image\"><br>\n" + json.message + "\n</div>\n</div>";
 
 		}
 
@@ -312,12 +356,15 @@ $chocal = new ChocalWeb();
 	}
 
 	// Will add new user to online list
-	function newUser(name, image) {
+	function newUser(name, image, image_type) {
 		var $list = $('#online-list');
-		var avatar = 'assets/img/no-avatar.png'; // TODO : Get avatar path
+		var avatar = image == '' ? 'assets/img/no-avatar.png' : dataMime(image, image_type);
 
 		// Create an internal id for user
 		userIds.push(name);
+
+		// Save user avatar
+		userAvatars[getInternalUserId(name)] = avatar;
 
 		var html = "<li id=\"u" + getInternalUserId(name) + "\" class=\"list-group-item\">\n<h4 class=\"list-group-item-heading media-name\">\n<img class=\"img-circle\" src=\"" + avatar + "\" alt=\"User Avatar\" width=\"60\" height=\"60\">&nbsp;" + name + "\n</h4>\n</li>";
 
@@ -349,7 +396,7 @@ $chocal = new ChocalWeb();
 
 		for (var index = 0; index < users.length; index++) {
 			user = users[index];
-			newUser(user.name, user.image);
+			newUser(user.name, user.image, user.image_type);
 		}
 
 	}
@@ -372,7 +419,7 @@ $chocal = new ChocalWeb();
 		if (myAvatar == null) {
 			$('#send-avatar-image').attr('src', 'assets/img/no-avatar.png');
 		} else {
-			$('#send-avatar-image').attr('src', myAvatar);
+			$('#send-avatar-image').attr('src', dataMime(myAvatar.data, myAvatar.type));
 		}
 		// Change page title
 		document.title = 'Chocal Chat Web Client';
@@ -382,23 +429,37 @@ $chocal = new ChocalWeb();
 	}
 
 	// This function will called right after web socket connection
-	function sendRegisterMessage(userName, avatarData) {
+	function sendRegisterMessage(userName, avatar) {
+
 		if (webSocket != null) {
-			var msg = JSON.stringify({
-				type: 'register',
-				name: userName,
-				image: avatarData
-			});
+			var json = null;
+
+			if (avatar == null) {
+				json = {
+					type: 'register',
+					name: userName
+				};
+			} else {
+				json = {
+					type: 'register',
+					name: userName,
+					image: avatar.data,
+					image_type: avatar.type
+				};
+			}
+
+			var msg = JSON.stringify(json);
 			webSocket.send(msg);
-			console.log('Register request sent:', msg);
+			console.info('Register request sent:', json);
 		}
+
 	}
 
 	// This function will handle update messages
 	function handleUpdate(json) {
 		switch (json.update) {
 			case 'userJoined':
-				newUser(json.name, json.image);
+				newUser(json.name, json.image, json.image_type);
 				break;
 			case 'userLeft':
 				removeUser(json.name);
@@ -417,12 +478,12 @@ $chocal = new ChocalWeb();
 				webSocket.close();
 			var wsUri = 'ws://' + ip + ':' + port;
 			webSocket = new WebSocket(wsUri);
-			webSocket.onopen = function (evt) {
+			webSocket.onopen = function (/*evt*/) {
 				console.info('Connected to web socket.');
 				// After connection we should send register request message
-				sendRegisterMessage(myName, avatarData);
+				sendRegisterMessage(myName, myAvatar);
 			};
-			webSocket.onclose = function (evt) {
+			webSocket.onclose = function (/*evt*/) {
 				console.error('Web socket disconnected.');
 			};
 			webSocket.onmessage = function (evt) {
@@ -432,6 +493,11 @@ $chocal = new ChocalWeb();
 				// Normal text message
 				if (message.type == 'plain') {
 					appendTextMessage(message);
+				}
+
+				// Image message
+				if (message.type == 'image') {
+					appendImageMessage(message);
 				}
 
 				// Update message
@@ -493,23 +559,21 @@ $chocal = new ChocalWeb();
 			}
 
 			var reader = new FileReader();
-			var readerPreview = new FileReader();
 
 			reader.onload = function (readerEvt) {
 				// Convert binary string Base64 encoded data to ASCII string
 				var binaryString = readerEvt.target.result;
-				avatarData = btoa(binaryString);
-			};
-
-			readerPreview.onload = function (readerEvt) {
+				myAvatar = {
+					data: btoa(binaryString),
+					type: fileType
+				};
 				// Show preview
 				$('#avatar-preview-area').removeClass('hide');
-				$('#avatar-preview').attr('src', readerEvt.target.result);
-				myAvatar = readerEvt.target.result;
+				$('#avatar-preview').attr('src', dataMime(myAvatar.data, myAvatar.type));
+
 			};
 
 			reader.readAsBinaryString(file);
-			readerPreview.readAsDataURL(file);
 		}
 	};
 
@@ -559,7 +623,10 @@ $chocal = new ChocalWeb();
 			reader.onload = function (readerEvt) {
 				// Convert binary string Base64 encoded data to ASCII string
 				var binaryString = readerEvt.target.result;
-				imageAttachmentData = btoa(binaryString);
+				imageAttachment = {
+					data: btoa(binaryString),
+					type: fileType
+				};
 				// Show success message
 				$attachButton.popover({
 					title: 'File Selected',
@@ -605,7 +672,7 @@ $chocal = new ChocalWeb();
 	function sendImageMessage() {
 		if (webSocket != null) {
 			// Check there is any image or not
-			if (imageAttachmentData == null) {
+			if (imageAttachment == null) {
 				return;
 			}
 
@@ -621,12 +688,19 @@ $chocal = new ChocalWeb();
 			}
 			// Clear text area
 			$textArea.val('');
+
 			// Generate json object
-			var json = {type: 'image', image: imageAttachmentData, message: text, user_key: myUserKey};
+			var json = {
+				type: 'image',
+				image: imageAttachment.data,
+				image_type: imageAttachment.type,
+				message: text,
+				user_key: myUserKey
+			};
 			// Send message
 			webSocket.send(JSON.stringify(json));
 			// Clear image data
-			imageAttachmentData = null;
+			imageAttachment = null;
 			// Return focus back to text area
 			$textArea.focus();
 			// Log data
@@ -663,7 +737,7 @@ $chocal = new ChocalWeb();
 	// General function to send messages
 	function send() {
 
-		if (imageAttachmentData != null) {
+		if (imageAttachment != null) {
 			// Image message
 			sendImageMessage();
 		} else {
