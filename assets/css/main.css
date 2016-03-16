@@ -12,3 +12,16 @@ textarea {
 .container {
     padding-top: 40px;
 }
+
+/* Used on message that current user is sent */
+.mine {
+    background-color: rgba(71, 229, 35, 0.1);
+}
+
+.media-name {
+    color: #ea8627;
+}
+
+.info-message {
+    margin-top: 20px;
+}

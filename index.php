@@ -23,7 +23,7 @@ $chocal = new ChocalWeb();
 	<meta name="author" content="Hesam Gholami">
 	<!--	TODO: <link rel="icon" href="favicon.ico"> -->
 
-	<title><?= $chocal->isJoined() ? "Chocal Chat Web Client" : "Join Chocal Chat" ?></title>
+	<title>Join Chocal Chat</title>
 
 	<!-- Bootstrap core CSS -->
 	<link href="vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -167,7 +167,7 @@ $chocal = new ChocalWeb();
 			<div class="panel panel-default">
 
 				<div class="panel-heading">
-					<h3 class="panel-title">John Doe</h3>
+					<h3 class="panel-title"><!-- User name will be appear here --></h3>
 				</div> <!-- / panel-heading -->
 
 				<div class="panel-body">
@@ -226,6 +226,7 @@ $chocal = new ChocalWeb();
 	var myAvatar = null;
 	var avatarData = null;
 	var webSocket = null;
+	var $chatArea = $('.chat-area');
 
 	// This function will bring back any alert related to avatar picker
 	function restoreAvatarAlerts() {
@@ -355,7 +356,12 @@ $chocal = new ChocalWeb();
 
 	});
 
-	/* Web socket */
+	function goToLast() {
+		// Scroll down
+		$chatArea.animate({
+			scrollTop: $chatArea[0].scrollHeight
+		}, 1000);
+	}
 
 	// This function will run when server sent back request acceptation message
 	function accepted(message) {
@@ -377,6 +383,8 @@ $chocal = new ChocalWeb();
 		} else {
 			$('#send-avatar-image').attr('src', myAvatar);
 		}
+		// Change page title
+		document.title = 'Chocal Chat Web Client';
 	}
 
 
@@ -393,33 +401,43 @@ $chocal = new ChocalWeb();
 
 	// This function will show a standard Chocal plain message type in chat area
 	function appendTextMessage(json) {
+		var html = null;
 		var avatar = null;
-		var $chatArea = $('.chat-area');
+
 
 		if (json.name == myName) {
 
 			// Sender is this user himself
 			avatar = myAvatar == null ? "assets/img/no-avatar.png" : myAvatar;
 
-			$chatArea.append("<div class=\"media\"><div class=\"media-body well\">\n<h4 class=\"media-heading\">" + myName + "</h4>\n" + json.message + "\n</div>\n<div class=\"media-right media-middle\">\n<img class=\"media-object img-circle\" src=\"" + avatar + "\" alt=\"User Avatar\" width=\"60\" height=\"60\">\n</div>\n</div>");
+			html = "<div class=\"media\"><div class=\"media-body well mine\">\n<h4 class=\"media-heading media-name\">" + "You" + "</h4>\n" + json.message + "\n</div>\n<div class=\"media-right media-middle\">\n<img class=\"media-object img-circle\" src=\"" + avatar + "\" alt=\"User Avatar\" width=\"60\" height=\"60\">\n</div>\n</div>";
 
 		} else {
 
 			// Sender is another user
 			avatar = "assets/img/no-avatar.png";// TODO : Get avatar path from php side
 
-			$chatArea.append("<div class=\"media\">\n<div class=\"media-left media-middle\">\n<img class=\"media-object img-circle\" src=\"" + avatar + "\" alt=\"User Avatar\" width=\"60\" height=\"60\">\n</div>\n<div class=\"media-body well\">\n<h4 class=\"media-heading\">" + json.name + "</h4>\n" + json.message + "\n</div>\n</div>");
+			html = "<div class=\"media\">\n<div class=\"media-left media-middle\">\n<img class=\"media-object img-circle\" src=\"" + avatar + "\" alt=\"User Avatar\" width=\"60\" height=\"60\">\n</div>\n<div class=\"media-body well\">\n<h4 class=\"media-heading media-name\">" + json.name + "</h4>\n" + json.message + "\n</div>\n</div>";
 
 		}
 
+		// Animate content
+		$(html).hide().appendTo($chatArea).slideDown();
+
 		// Scroll down
-		$chatArea.animate({
-			scrollTop: $chatArea[0].scrollHeight
-		}, 1000);
+		goToLast();
 
 	}
 
+	// This function will show a Chocal Chat info message in chat view
+	function appendInfoMessage(json) {
+		var html = "<div class=\"alert alert-info text-center info-message\">" + json.message + "</div>";
+		$(html).hide().appendTo($chatArea).slideDown();
+		// Scroll down
+		goToLast();
+	}
 
+	// This function will be called at join operation
 	function initWebSocket(ip, port) {
 		try {
 			if (typeof MozWebSocket == 'function')
@@ -438,11 +456,16 @@ $chocal = new ChocalWeb();
 			};
 			webSocket.onmessage = function (evt) {
 				var message = JSON.parse(evt.data);
-				console.log("Message received:", evt.data);
+				console.log("Message received:", message);
 
 				// Normal text message
 				if (message.type == "plain") {
 					appendTextMessage(message);
+				}
+
+				// Info message
+				if (message.type == "info") {
+					appendInfoMessage(message);
 				}
 
 				// Handle acceptation message
