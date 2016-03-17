@@ -21,12 +21,27 @@ $chocal = new ChocalWeb();
 	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 	<meta name="description" content="Chocal Chat web client">
 	<meta name="author" content="Hesam Gholami">
-	<!--	TODO: <link rel="icon" href="favicon.ico"> -->
+	<link rel="shortcut icon" href="assets/img/favicon.ico">
+	<!-- Coloring browser header -->
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#4285f4">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#4285f4">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#4285f4">
 
-	<title>Join Chocal Chat</title>
+	<title><?= $chocal->lang->getTranslate('JOIN_CHOCAL_CHAT') ?></title>
 
 	<!-- Bootstrap core CSS -->
 	<link href="vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+
+	<?php
+	# Include Bootstrap RTL if language is RTL
+	if ($chocal->lang->isRtl()) :?>
+		<!-- RTL version of Bootstrap -->
+		<link href="assets/css/bootstrap-rtl.min.css" rel="stylesheet">
+	<?php endif; ?>
+
 	<!-- Main styles -->
 	<link href="assets/css/main.css" rel="stylesheet">
 
@@ -41,7 +56,7 @@ $chocal = new ChocalWeb();
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
 						aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title" id="join-modal-label">Join Chat</h4>
+				<h4 class="modal-title" id="join-modal-label"><?= $chocal->lang->getTranslate('JOIN_CHAT') ?></h4>
 			</div>
 
 			<form id="join-form" role="form" action="" method="post" enctype="multipart/form-data">
@@ -51,68 +66,69 @@ $chocal = new ChocalWeb();
 						<!-- Errors on joining will be shown here -->
 					</div>
 
-					<p>Easily join Chocal Chat to communicate with your local network friends.</p>
+					<p><?= $chocal->lang->getTranslate('EASILY_JOIN_CHOCAL_CHAT_TO_COMMUNICATE') ?></p>
 
 					<div class="form-group">
 						<div class="row">
 							<div class="col-sm-6">
-								<label for="name">Your Name</label>
+								<label for="name"><?= $chocal->lang->getTranslate('YOUR_NAME') ?></label>
 								<input id="name" type="text" name="name" class="form-control"
-								       placeholder="e.g. John, Ali, Alex Doe" required>
+								       placeholder="<?= $chocal->lang->getTranslate('EG_JOHN_ALI_ALEX') ?>" required>
 							</div>
 						</div>
 
-						<p class="help-block">Your name will be shown to others.</p>
+						<p class="help-block"><?= $chocal->lang->getTranslate('YOUR_NAME_SHOWN_OTHERS') ?></p>
 					</div>
 
 
-					<label for="server-ip">Server Address</label>
+					<label for="server-ip"><?= $chocal->lang->getTranslate('SERVER_ADDRESS') ?></label>
 					<div id="server-ip" class="input-group">
 						<span class="input-group-addon" id="schema-addon">ws://</span>
-						<input id="ip" type="text" name="ip" class="form-control" placeholder="i.e. 192.168.1.2"
+						<input id="ip" type="text" name="ip" class="form-control"
+						       placeholder="<?= $chocal->lang->getTranslate('IE_IP') ?>"
 						       aria-describedby="schema-addon" required>
 						<span class="input-group-addon" id="url-colon-addon">:</span>
-						<input id="port" type="text" name="port" class="form-control" placeholder="i.e. 36911"
+						<input id="port" type="text" name="port" class="form-control"
+						       placeholder="<?= $chocal->lang->getTranslate('IE_PORT') ?>"
 						       aria-describedby="url-colon-addon" required>
 
 					</div>
-					<p class="help-block">Ask the Chocal Chat admin to give you the IP address and port number of Chocal
-						Server.</p>
+					<p class="help-block"><?= $chocal->lang->getTranslate('ASK_ADMIN_TO_GIVE_IP') ?></p>
 
 					<!-- Alert for browsers which don't support HTML5 file APIs -->
 					<div id="avatar-incompatible-alert" class="hide alert alert-warning alert-dismissible fade in"
 					     role="alert">
 						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
 								aria-hidden="true">&times;</span></button>
-						Sorry!, but your browser don't support new web technologies to upload an avatar picture. If you
-						want to have an avatar picture consider using a better web browser.
-					</div>
+						<?= $chocal->lang->getTranslate('SORRY_BROWSER_DONT_SUPPORT_HTML5_FILE_API') ?></div>
 
 					<!-- Avatar file selector -->
 					<div id="avatar-picker-area" class="form-group">
-						<label for="avatar">Your Avatar (Maximum file size is 256kb)</label>
+						<label for="avatar"><?= $chocal->lang->getTranslate('YOUR_AVATAR_MAX_SIZE') ?></label>
 						<input id="avatar-picker" type="file" name="avatar">
-						<p class="help-block">Optionally you can set an Avatar image for yourself.</p>
+						<p class="help-block"><?= $chocal->lang->getTranslate('OPTIONALLY_CAN_SET_AVATAR') ?></p>
 					</div>
 
 					<!-- Avatar preview area -->
 					<div id="avatar-preview-area" class="hide text-center">
-						<p>Your Avatar picture:</p>
+						<p><?= $chocal->lang->getTranslate('YOUR_AVATAR_PICTURE') ?></p>
 						<img id="avatar-preview" class="img-circle" src="assets/img/no-avatar.png" width="60"
 						     height="60" alt="User Avatar">
 					</div>
 
 					<!-- Avatar invalid image error -->
 					<div id="avatar-invalid-image-alert" class="hide alert alert-danger" role="alert">
-						<p>Invalid Avatar picture is selected.</p>
+						<p><?= $chocal->lang->getTranslate('INVALID_AVATAR_SELECTED') ?></p>
 					</div>
 
 
 				</div>
 
 				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-					<button type="submit" class="btn btn-success">JOIN NOW</button>
+					<button type="button" class="btn btn-default"
+					        data-dismiss="modal"><?= $chocal->lang->getTranslate('CANCEL') ?></button>
+					<button type="submit"
+					        class="btn btn-success"><?= $chocal->lang->getTranslate('JOIN_NOW_ALL_CAPITAL') ?></button>
 				</div>
 
 			</form>
@@ -128,22 +144,21 @@ $chocal = new ChocalWeb();
 	<div id="intro">
 
 		<div class="jumbotron">
-			<h1>Chocal Chat</h1>
-			<p>Use Chocal Chat to communicate with your friends!</p>
+			<h1><?= $chocal->lang->getTranslate('CHOCAL_CHAT') ?></h1>
+			<p><?= $chocal->lang->getTranslate('USE_CHOCAL_CHAT_TO_COMMUNICATE') ?></p>
 
 			<p class="text-center">
 				<!-- Join button -->
 				<button id="join-button" type="button" class="btn btn-primary btn-lg" data-toggle="modal"
 				        data-target="#join-modal" autofocus>
-					JOIN CHAT
+					<?= $chocal->lang->getTranslate('JOIN_CHAT_ALL_CAPITAL') ?>
 				</button>
 			</p>
 		</div> <!-- /jumbotron -->
 
 		<div class="text-center alert alert-info">
-			<h2>Tip</h2>
-			<p>Please consider that this web page is using modern web technologies and will not work with old browsers
-				especially that crappy ie!</p>
+			<h2><?= $chocal->lang->getTranslate('TIP') ?></h2>
+			<p><?= $chocal->lang->getTranslate('PLEASE_CONSIDER_YOU_NEED_MODERN_BROWSER') ?></p>
 		</div>
 
 	</div><!-- / intro -->
@@ -173,20 +188,20 @@ $chocal = new ChocalWeb();
 
 					<div class="row">
 
-						<div class="col-xs-6">
+						<div class="col-xs-12 col-sm-4">
 							<h3 class="panel-title"><!-- Number of online users will be shown here --></h3>
 						</div>
 
-						<div class="col-xs-6">
-							<p class="text-right">
+						<div class="col-xs-12 col-sm-8">
+							<p class="<?= $chocal->lang->isRtl() ? 'text-left' : 'text-right' ?>">
 								<!-- Leave button -->
 								<button id="leave-button" type="button" class="btn btn-danger btn-sm">
-									Leave Chat
+									<?= $chocal->lang->getTranslate('LEAVE_CHAT') ?>
 								</button>
 								<!-- Check state button -->
 								<button id="check-state-button" type="button" class="btn btn-default btn-sm"
 								        data-toggle="popover" data-placement="bottom">
-									Check State
+									<?= $chocal->lang->getTranslate('CHECK_STATE') ?>
 								</button>
 							</p>
 						</div>
@@ -213,7 +228,7 @@ $chocal = new ChocalWeb();
 					<div class="media">
 						<div class="media-body">
 							<p><textarea id="txt-message" class="form-control" rows="3"
-							             placeholder="Enter your message..."></textarea>
+							             placeholder="<?= $chocal->lang->getTranslate('ENTER_YOUR_MESSAGE') ?>"></textarea>
 							</p>
 
 						</div>
@@ -228,7 +243,8 @@ $chocal = new ChocalWeb();
 						<!-- Send button -->
 						<div class="col-xs-10">
 							<p>
-								<button id="send-button" class="btn btn-success btn-block" type="button">Send</button>
+								<button id="send-button" class="btn btn-success btn-block"
+								        type="button"><?= $chocal->lang->getTranslate('SEND') ?></button>
 							</p>
 						</div>
 
@@ -259,7 +275,19 @@ $chocal = new ChocalWeb();
 <!-- Bootstrap js components -->
 <script src="vendor/twbs/bootstrap/dist/js/bootstrap.min.js"></script>
 <!-- Chocal scripts -->
-<script src="assets/js/lang.en.js"></script><!-- TODO: Load different languages -->
+<?php
+# Load different languages for JavaScript texts
+switch ($chocal->lang->getLang()) :
+case 'fa':?>
+	<!-- Persian language -->
+	<script src="assets/js/lang.fa.js"></script>
+<?php break;
+default: ?>
+	<!-- English language -->
+	<script src="assets/js/lang.en.js"></script>
+	<?php
+	break;
+endswitch; ?>
 <script src="assets/js/chocal.js"></script>
 </body>
 </html>

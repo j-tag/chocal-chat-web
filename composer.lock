@@ -4,40 +4,9 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "4ee2e418a0d0901822bfdf51d62b1989",
-    "content-hash": "55a9db9bdf6fdb72729917ac65197738",
+    "hash": "1c05e13bf8ec3b7dcb0fe6570b5856bf",
+    "content-hash": "db7a3e99ff0d990cf9c60f468db9067f",
     "packages": [
-        {
-            "name": "afarkas/html5shiv",
-            "version": "3.7.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/aFarkas/html5shiv.git",
-                "reference": "ed28c56c071bddfe7d635ad88995674957a016be"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/aFarkas/html5shiv/zipball/ed28c56c071bddfe7d635ad88995674957a016be",
-                "reference": "ed28c56c071bddfe7d635ad88995674957a016be",
-                "shasum": ""
-            },
-            "type": "component",
-            "extra": {
-                "component": {
-                    "scripts": [
-                        "dist/html5shiv.js"
-                    ]
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT",
-                "GPL-2.0"
-            ],
-            "description": "Defacto way to enable use of HTML5 sectioning elements in legacy Internet Explorer.",
-            "homepage": "http://paulirish.com/2011/the-history-of-the-html5-shiv/",
-            "time": "2015-07-20 20:04:00"
-        },
         {
             "name": "components/jquery",
             "version": "1.12.1",
@@ -82,16 +51,16 @@
         },
         {
             "name": "puresoft/easy-lang",
-            "version": "v2.1",
+            "version": "v2.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/J-TAG/easy-lang.git",
-                "reference": "7f3f8f0d35cc5a259ad0309dd5286fa7337e3551"
+                "reference": "e5cd193bb2255ebcc543510dea3a304e8c6e5ed7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/J-TAG/easy-lang/zipball/7f3f8f0d35cc5a259ad0309dd5286fa7337e3551",
-                "reference": "7f3f8f0d35cc5a259ad0309dd5286fa7337e3551",
+                "url": "https://api.github.com/repos/J-TAG/easy-lang/zipball/e5cd193bb2255ebcc543510dea3a304e8c6e5ed7",
+                "reference": "e5cd193bb2255ebcc543510dea3a304e8c6e5ed7",
                 "shasum": ""
             },
             "require": {
@@ -121,7 +90,7 @@
                 "php",
                 "translate"
             ],
-            "time": "2016-03-17 10:38:54"
+            "time": "2016-03-17 12:07:26"
         },
         {
             "name": "twbs/bootstrap",

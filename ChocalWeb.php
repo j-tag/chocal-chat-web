@@ -20,14 +20,11 @@ class ChocalWeb
 
 	function __construct()
 	{
-		$route = substr($_SERVER['REQUEST_URI'], strlen($_SERVER['SCRIPT_NAME']));
-		$part = explode("/", $route);
-
 		$language_short_name = 'en';
 		$is_rtl = false;
 
-		if (isset($part[1])) {
-			switch ($part[1]) {
+		if (isset($_GET['hl'])) {
+			switch ($_GET['hl']) {
 				case 'fa':
 					$language_short_name = 'fa';
 					$is_rtl = true;
