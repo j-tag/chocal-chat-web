@@ -4,9 +4,15 @@ textarea {
 
 .chat-area {
     overflow: auto; /* Enable scroll bar if needed */
-    height: 60vh; /* Chat area will be 60% of view port height */
+    height: 55vh; /* Chat area will be 55% of view port height */
     padding: 15px;
     margin: -15px;
+}
+
+.online-list {
+    overflow: auto; /* Enable scroll bar if needed */
+    height: 90vh; /* Online list will be 90% of view port height */
+    padding-right: 5px;
 }
 
 .container {
@@ -24,4 +30,13 @@ textarea {
 
 .info-message {
     margin-top: 20px;
+}
+
+#leave-button, #check-state-button {
+    margin-top: -5px;
+    margin-bottom: -15px;
+}
+
+.panel-title {
+    padding-top: 5px;
 }
