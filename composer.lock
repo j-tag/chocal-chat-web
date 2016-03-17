@@ -82,16 +82,16 @@
         },
         {
             "name": "puresoft/easy-lang",
-            "version": "v2.0",
+            "version": "v2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/J-TAG/easy-lang.git",
-                "reference": "5da72595e31e89bd4bb01f3ba9bebf592d13f262"
+                "reference": "7f3f8f0d35cc5a259ad0309dd5286fa7337e3551"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/J-TAG/easy-lang/zipball/5da72595e31e89bd4bb01f3ba9bebf592d13f262",
-                "reference": "5da72595e31e89bd4bb01f3ba9bebf592d13f262",
+                "url": "https://api.github.com/repos/J-TAG/easy-lang/zipball/7f3f8f0d35cc5a259ad0309dd5286fa7337e3551",
+                "reference": "7f3f8f0d35cc5a259ad0309dd5286fa7337e3551",
                 "shasum": ""
             },
             "require": {
@@ -114,13 +114,14 @@
             "homepage": "https://github.com/J-TAG/easy-lang",
             "keywords": [
                 "easy",
+                "i18n",
                 "language",
                 "localization",
                 "multi-language",
                 "php",
                 "translate"
             ],
-            "time": "2016-03-13 10:49:03"
+            "time": "2016-03-17 10:38:54"
         },
         {
             "name": "twbs/bootstrap",

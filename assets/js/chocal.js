@@ -101,10 +101,21 @@ function appendInfoMessage(json) {
     goToLast();
 }
 
+// This function will show errors in an alert box in join form and chat page
+function showErrorMessage(json) {
+    var $joinAlert = $('#join-alert');
+    var $chatAlert = $('#chat-alert');
+
+    var html = "<div id=\"error-alert\" class=\"alert alert-danger alert-dismissible fade in\" role=\"alert\">\n<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>\n<p>" + json.message + "</p>\n</div>";
+
+    $(html).hide().appendTo($joinAlert).slideDown().delay(5000).slideUp();
+    $(html).hide().appendTo($chatAlert).slideDown().delay(5000).slideUp();
+}
+
 // Will update online users number
 function updateOnlineUsers() {
     var text = lang.WE_HAVE_X_ONLINE_USERS;
-    $('.panel-title').html(text.replace('%1', onlineCounter.toString()));
+    $('.panel-title').text(text.replace('%1', onlineCounter.toString()));
 }
 
 // Returns internal id of user
@@ -248,6 +259,7 @@ function initWebSocket(ip, port) {
         };
         webSocket.onclose = function (/*evt*/) {
             console.error('Web socket disconnected.');
+            // TODO : Show error in page
         };
         webSocket.onmessage = function (evt) {
             var message = JSON.parse(evt.data);
@@ -271,6 +283,11 @@ function initWebSocket(ip, port) {
             // Info message
             if (message.type == 'info') {
                 appendInfoMessage(message);
+            }
+
+            // Error message
+            if (message.type == 'error') {
+                showErrorMessage(message);
             }
 
             // Handle acceptation message
@@ -498,7 +515,7 @@ function sendTextMessage() {
         // Return focus back to text area
         $textArea.focus();
         // Log data
-        console.log('Data sent:', JSON.stringify(json));
+        console.log('Data sent:', json);
     }
 }
 

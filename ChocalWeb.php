@@ -9,7 +9,7 @@
 namespace chocal;
 require_once __DIR__ . str_replace("/", DIRECTORY_SEPARATOR, "/vendor/puresoft/easy-lang/easylang.php");
 
-use puresoft\EasyLang;
+use puresoft\easylang\EasyLang;
 
 class ChocalWeb
 {
@@ -24,11 +24,13 @@ class ChocalWeb
 		$part = explode("/", $route);
 
 		$language_short_name = 'en';
+		$is_rtl = false;
 
 		if (isset($part[1])) {
 			switch ($part[1]) {
 				case 'fa':
 					$language_short_name = 'fa';
+					$is_rtl = true;
 					break;
 
 				default:
@@ -38,13 +40,7 @@ class ChocalWeb
 		}
 
 		// Start EasyLang with founded language in URL
-		$this->lang = new EasyLang('languages' . DIRECTORY_SEPARATOR, $language_short_name);
-	}
-
-	function isJoined()
-	{
-		// TODO : Return true if user is joined to chat, otherwise return false
-		return false;
+		$this->lang = new EasyLang('languages' . DIRECTORY_SEPARATOR, $language_short_name, $is_rtl);
 	}
 
 }

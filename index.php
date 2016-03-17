@@ -30,10 +30,6 @@ $chocal = new ChocalWeb();
 	<!-- Main styles -->
 	<link href="assets/css/main.css" rel="stylesheet">
 
-	<!-- HTML5 shim for IE8 support of HTML5 -->
-	<!--[if lt IE 9]>
-	<script src="vendor/afarkas/html5shiv/dist/html5shiv.min.js"></script>
-	<![endif]-->
 </head>
 
 <body>
@@ -50,6 +46,10 @@ $chocal = new ChocalWeb();
 
 			<form id="join-form" role="form" action="" method="post" enctype="multipart/form-data">
 				<div class="modal-body">
+
+					<div id="join-alert">
+						<!-- Errors on joining will be shown here -->
+					</div>
 
 					<p>Easily join Chocal Chat to communicate with your local network friends.</p>
 
@@ -140,6 +140,12 @@ $chocal = new ChocalWeb();
 			</p>
 		</div> <!-- /jumbotron -->
 
+		<div class="text-center alert alert-info">
+			<h2>Tip</h2>
+			<p>Please consider that this web page is using modern web technologies and will not work with old browsers
+				especially that crappy ie!</p>
+		</div>
+
 	</div><!-- / intro -->
 
 	<!-- Row for chat view -->
@@ -157,6 +163,9 @@ $chocal = new ChocalWeb();
 
 		<div class="col-sm-9">
 
+			<div id="chat-alert">
+				<!-- Errors will be shown here -->
+			</div>
 
 			<div class="panel panel-default">
 
