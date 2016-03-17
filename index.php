@@ -24,11 +24,11 @@ $chocal = new ChocalWeb();
 	<link rel="shortcut icon" href="assets/img/favicon.ico">
 	<!-- Coloring browser header -->
 	<!-- Chrome, Firefox OS and Opera -->
-	<meta name="theme-color" content="#4285f4">
+	<meta name="theme-color" content="#5e287c">
 	<!-- Windows Phone -->
-	<meta name="msapplication-navbutton-color" content="#4285f4">
+	<meta name="msapplication-navbutton-color" content="#5e287c">
 	<!-- iOS Safari -->
-	<meta name="apple-mobile-web-app-status-bar-style" content="#4285f4">
+	<meta name="apple-mobile-web-app-status-bar-style" content="#5e287c">
 
 	<title><?= $chocal->lang->getTranslate('JOIN_CHOCAL_CHAT') ?></title>
 
@@ -143,11 +143,19 @@ $chocal = new ChocalWeb();
 	<!-- intro -->
 	<div id="intro">
 
-		<div class="jumbotron">
+		<div class="jumbotron text-center">
+			<img src="assets/img/chocal-logo-256.png" class="img-responsive center-block" alt="Chocal Logo">
 			<h1><?= $chocal->lang->getTranslate('CHOCAL_CHAT') ?></h1>
 			<p><?= $chocal->lang->getTranslate('USE_CHOCAL_CHAT_TO_COMMUNICATE') ?></p>
 
-			<p class="text-center">
+			<!-- Country flags -->
+			<p>
+				<a href="?hl=en" title="English (United States)"><img src="assets/img/flags/en-us.gif"
+				                                                      alt="US Flag"></a>
+				<a href="?hl=fa" title="پارسی"><img src="assets/img/flags/fa-ir.gif" alt="Iran Flag"></a>
+			</p>
+
+			<p>
 				<!-- Join button -->
 				<button id="join-button" type="button" class="btn btn-primary btn-lg" data-toggle="modal"
 				        data-target="#join-modal" autofocus>
