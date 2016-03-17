@@ -17,5 +17,6 @@ var lang = {
     CLOSING_CONNECTION_TO_CHOCAL_SERVER: 'Closing connection to Chocal Server...',
     NOT_CONNECTED_TO_ANY_SERVER: 'Not connected to any server.',
     CANT_DEFINE_STATE_SOMETHING_WRONG: 'Sorry!, but can\'t define state. It seems something went wrong.',
-    SEEMS_YOUR_BROWSER_DONT_SUPPORT_WEB_SOCKET: 'Sorry!, but it seems your browser don\'t support web sockets or it is disabled.'
+    SEEMS_YOUR_BROWSER_DONT_SUPPORT_WEB_SOCKET: 'Sorry!, but it seems your browser don\'t support web sockets or it is disabled.',
+    CONNECTION_TO_CHOCAL_SERVER_LOST: 'Connection to Chocal Server has lost.'
 };

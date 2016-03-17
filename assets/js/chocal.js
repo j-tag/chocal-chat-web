@@ -108,8 +108,8 @@ function showErrorMessage(json) {
 
     var html = "<div id=\"error-alert\" class=\"alert alert-danger alert-dismissible fade in\" role=\"alert\">\n<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>\n<p>" + json.message + "</p>\n</div>";
 
-    $(html).hide().appendTo($joinAlert).slideDown().delay(5000).slideUp();
-    $(html).hide().appendTo($chatAlert).slideDown().delay(5000).slideUp();
+    $(html).hide().appendTo($joinAlert).slideDown().delay(10000).slideUp();
+    $(html).hide().appendTo($chatAlert).slideDown().delay(10000).slideUp();
 }
 
 // Will update online users number
@@ -259,7 +259,7 @@ function initWebSocket(ip, port) {
         };
         webSocket.onclose = function (/*evt*/) {
             console.error('Web socket disconnected.');
-            // TODO : Show error in page
+            showErrorMessage({message: lang.CONNECTION_TO_CHOCAL_SERVER_LOST});
         };
         webSocket.onmessage = function (evt) {
             var message = JSON.parse(evt.data);
