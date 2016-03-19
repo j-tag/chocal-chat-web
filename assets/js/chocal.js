@@ -8,6 +8,7 @@ var myAvatar = null;
 var imageAttachment = null;
 var webSocket = null;
 var $chatArea = $('.chat-area');
+var $attachButton = $('#attach-button');
 var userIds = [];
 var userAvatars = [];
 var onlineCounter = 0;
@@ -357,28 +358,29 @@ var handleAvatarFileSelect = function (evt) {
     }
 };
 
-// This function will handle choosing of an Attachment picture
+// This function will get called when delete image button from attachment image picker modal is selected
+function deleteAttachmentImage() {
+    imageAttachment = null;
+    // Show info
+    $attachButton.data('bs.popover').options.title = lang.FILE_REMOVED;
+    $attachButton.data('bs.popover').options.content = lang.ATTACHMENT_IMAGE_HAS_BEEN_REMOVED;
+    $attachButton.popover('show');
+}
+
+// This function will handle choosing of an attachment picture
 var handleAttachmentImageSelect = function (evt) {
     var files = evt.target.files;
     var file = files[0];
 
     if (files && file) {
 
-        var $attachButton = $('#attach-button');
-
         // Check file size
         if (file.size > 2097152 /* Equals to 2048 kb */) {
             // File size is invalid
-            $attachButton.popover({
-                title: lang.INVALID_FILE_SIZE,
-                content: lang.FILE_SIZE_MUST_NOT_BE_MORE_THAN_2MB,
-                placement: 'top',
-                trigger: 'focus'
-            });
+            $attachButton.data('bs.popover').options.title = lang.INVALID_FILE_SIZE;
+            $attachButton.data('bs.popover').options.content = lang.FILE_SIZE_MUST_NOT_BE_MORE_THAN_2MB;
             $attachButton.popover('show');
             return;
-        } else {
-            $attachButton.popover('destroy');
         }
 
         // Check file type
@@ -386,16 +388,10 @@ var handleAttachmentImageSelect = function (evt) {
         var match = ['image/jpeg', 'image/png', 'image/jpg'];
         if (!((fileType == match[0]) || (fileType == match[1]) || (fileType == match[2]))) {
             // File type is invalid
-            $attachButton.popover({
-                title: lang.INVALID_FILE_TYPE,
-                content: lang.FILE_MUST_BE_AN_IMAGE_IN_JPG_JPEG_PNG_FORMAT,
-                placement: 'top',
-                trigger: 'focus'
-            });
+            $attachButton.data('bs.popover').options.title = lang.INVALID_FILE_TYPE;
+            $attachButton.data('bs.popover').options.content = lang.FILE_MUST_BE_AN_IMAGE_IN_JPG_JPEG_PNG_FORMAT;
             $attachButton.popover('show');
             return;
-        } else {
-            $attachButton.popover('destroy');
         }
 
         var reader = new FileReader();
@@ -408,18 +404,20 @@ var handleAttachmentImageSelect = function (evt) {
                 type: fileType
             };
             // Show success message
-            $attachButton.popover({
-                title: lang.FILE_SELECTED,
-                content: lang.ATTACHMENT_IMAGE_SELECTED_YOU_CAN_PRESS_SEND,
-                placement: 'top',
-                trigger: 'focus'
-            });
+            $attachButton.data('bs.popover').options.title = lang.FILE_SELECTED;
+            $attachButton.data('bs.popover').options.content = lang.ATTACHMENT_IMAGE_SELECTED_YOU_CAN_PRESS_SEND;
             $attachButton.popover('show');
         };
 
         reader.readAsBinaryString(file);
     }
 };
+
+// This function will be triggered when attachment button was clicked
+function attachmentButtonClick() {
+    // Initialize popover of attach button
+    $attachButton.popover();
+}
 
 var joinChat = function (evt) {
     evt.preventDefault();
@@ -460,12 +458,7 @@ function sendImageMessage() {
         var $textArea = $('#txt-message');
         // Get value of text area
         var text = $textArea.val();
-        // Check there is a value or not
-        if (text.length < 1) {
-            // Return focus back to text area
-            $textArea.focus();
-            return;
-        }
+        // NOTE: In image message we can leave text area empty
         // Clear text area
         $textArea.val('');
 
@@ -483,6 +476,8 @@ function sendImageMessage() {
         imageAttachment = null;
         // Return focus back to text area
         $textArea.focus();
+        // Clear attachment button popover
+        $attachButton.popover('destroy');
         // Log data
         console.log('Data sent:', json);
     }
@@ -572,12 +567,12 @@ $(function () {
     // Set Avatar picker and image attachment event handler
     if (window.File && window.FileReader && window.FileList && window.Blob) {
         $('#avatar-picker').on('change', handleAvatarFileSelect);
-        $('#attach-button').on('change', handleAttachmentImageSelect);
+        $('#attachment-image-picker').on('change', handleAttachmentImageSelect);
     } else {
         // The File APIs are not fully supported in this browser
         $('#avatar-incompatible-alert').removeClass('hide');
         $('#avatar-picker').attr('disabled', true);
-        $('#attach-button').attr('disabled', true);
+        $attachButton.attr('disabled', true);
     }
 
     // Set join form submit button event listener
@@ -592,7 +587,12 @@ $(function () {
     // Set check state button event listener
     $('#check-state-button').on('click', checkSocket);
 
+    // Attachment button
+    $attachButton.on('click', attachmentButtonClick);
+
+    // Attachment image remover button
+    $('#attachment-image-remover').on('click', deleteAttachmentImage);
+
     // Initialize popovers
     $('[data-toggle="popover"]').popover();
-
 });

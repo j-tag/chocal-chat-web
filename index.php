@@ -100,11 +100,11 @@ $chocal = new ChocalWeb();
 					     role="alert">
 						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
 								aria-hidden="true">&times;</span></button>
-						<?= $chocal->lang->getTranslate('SORRY_BROWSER_DONT_SUPPORT_HTML5_FILE_API') ?></div>
+						<?= $chocal->lang->getTranslate('AVATAR_SORRY_BROWSER_DONT_SUPPORT_HTML5_FILE_API') ?></div>
 
 					<!-- Avatar file selector -->
 					<div id="avatar-picker-area" class="form-group">
-						<label for="avatar"><?= $chocal->lang->getTranslate('YOUR_AVATAR_MAX_SIZE') ?></label>
+						<label for="avatar-picker"><?= $chocal->lang->getTranslate('YOUR_AVATAR_MAX_SIZE') ?></label>
 						<input id="avatar-picker" type="file" name="avatar">
 						<p class="help-block"><?= $chocal->lang->getTranslate('OPTIONALLY_CAN_SET_AVATAR') ?></p>
 					</div>
@@ -137,6 +137,58 @@ $chocal = new ChocalWeb();
 	</div>
 </div> <!-- /Register modal -->
 
+<!-- Attachment image modal -->
+<div class="modal fade" id="attachment-image-modal" tabindex="-1" role="dialog"
+     aria-labelledby="attachment-image-modal-label">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+						aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title"
+				    id="attachment-image-label"><?= $chocal->lang->getTranslate('CHOOSE_IMAGE') ?></h4>
+			</div>
+
+			<form id="attachment-image-form" role="form" action="" method="post" enctype="multipart/form-data">
+				<div class="modal-body">
+
+					<div id="attachment-image-alert">
+						<!-- Errors on adding attachment image will be shown here -->
+					</div>
+
+					<!-- Alert for browsers which don't support HTML5 file APIs -->
+					<div id="image-attachment-incompatible-alert"
+					     class="hide alert alert-warning alert-dismissible fade in"
+					     role="alert">
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+								aria-hidden="true">&times;</span></button>
+						<?= $chocal->lang->getTranslate('ATTACHMENT_IMAGE_SORRY_BROWSER_DONT_SUPPORT_HTML5_FILE_API') ?>
+					</div>
+
+					<!-- Image file selector -->
+					<div id="attachment-image-picker-area" class="form-group">
+						<label
+							for="attachment-image-picker"><?= $chocal->lang->getTranslate('SELECT_IMAGE_MAX_2_MB') ?></label>
+						<input id="attachment-image-picker" type="file">
+						<p class="help-block"><?= $chocal->lang->getTranslate('SELECT_JPG_JPEG_PNG_TO_SEND') ?></p>
+					</div>
+
+
+				</div>
+
+				<div class="modal-footer">
+					<button id="attachment-image-remover" type="button" class="btn btn-danger"
+					        data-dismiss="modal"><?= $chocal->lang->getTranslate('DELETE_IMAGE') ?></button>
+					<button type="button"
+					        class="btn btn-success"
+					        data-dismiss="modal"><?= $chocal->lang->getTranslate('SELECT') ?></button>
+				</div>
+
+			</form>
+
+		</div>
+	</div>
+</div> <!-- /Attachment image modal -->
 
 <div class="container">
 
@@ -259,7 +311,9 @@ $chocal = new ChocalWeb();
 						<!-- Attach image button -->
 						<div class="col-xs-2">
 							<p>
-								<input id="attach-button" type="file" class="btn btn-info btn-block">
+								<a tabindex="0" id="attach-button" class="btn btn-info btn-block" data-toggle="modal"
+								   data-placement="top" data-trigger="focus" data-target="#attachment-image-modal"
+								   role="button"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span></a>
 							</p>
 						</div>
 

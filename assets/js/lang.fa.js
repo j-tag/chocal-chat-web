@@ -18,5 +18,7 @@ var lang = {
     NOT_CONNECTED_TO_ANY_SERVER: 'به هیچ سروری متصل نیست',
     CANT_DEFINE_STATE_SOMETHING_WRONG: 'متاسفیم!، اما نمیتوان وضعیت را مشخص کرد. به نظر میرسد اشتباهی رخ داده باشد.',
     SEEMS_YOUR_BROWSER_DONT_SUPPORT_WEB_SOCKET: 'متاسفیم!، اما به نظر میرسد که مرورگر شما از Web Socket پشتیبانی نمی کند و یا اینکه غیر فعال است.',
-    CONNECTION_TO_CHOCAL_SERVER_LOST: 'ارتباط با چوکال سرور از دست رفت.'
+    CONNECTION_TO_CHOCAL_SERVER_LOST: 'ارتباط با چوکال سرور از دست رفت.',
+    FILE_REMOVED: 'فایل حذف شد',
+    ATTACHMENT_IMAGE_HAS_BEEN_REMOVED: 'تصویر ضمیمه حذف شد.'
 };
