@@ -3,6 +3,8 @@
  */
 
 var lang = {
+    is_rtl: true,
+
     YOU: 'شما',
     WE_HAVE_X_ONLINE_USERS: '%1 کاربر آنلاین',
     CHOCAL_CHAT_WEB_CLIENT: 'کلاینت وب چوکال چت',

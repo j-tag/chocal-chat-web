@@ -45,6 +45,13 @@ $chocal = new ChocalWeb();
 	<!-- Main styles -->
 	<link href="assets/css/main.css" rel="stylesheet">
 
+	<?php
+	# Include main RTL style if language is RTL
+	if ($chocal->lang->isRtl()) :?>
+		<!-- RTL version of main styles -->
+		<link href="assets/css/main-rtl.css" rel="stylesheet">
+	<?php endif; ?>
+
 </head>
 
 <body>

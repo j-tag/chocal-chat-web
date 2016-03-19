@@ -1,0 +1,14 @@
+/* Fix arrow issue on message bubble popovers */
+.media-body .popover {
+    position: relative;
+    display: block;
+    margin: 20px;
+    z-index: 1;
+    float: left;
+}
+
+.media-body .popover.left {
+    float: right;
+}
+
+/* /Fix arrow issue */

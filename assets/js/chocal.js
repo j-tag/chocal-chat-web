@@ -40,20 +40,25 @@ function getAvatar(name) {
 function appendTextMessage(json) {
     var html = null;
     var avatar = null;
+    var direction = null;
 
 
     if (json.name == myName) {
 
         // Sender is this user himself
 
-        html = "<div class=\"media\"><div class=\"media-body well mine\">\n<h4 class=\"media-heading media-name\">" + lang.YOU + "</h4>\n" + json.message + "\n</div>\n<div class=\"media-right media-middle\">\n<img class=\"media-object img-circle\" src=\"" + getMyAvatar() + "\" alt=\"User Avatar\" width=\"60\" height=\"60\">\n</div>\n</div>";
+        direction = lang.is_rtl ? "right" : "left";
+
+        html = "<div class=\"media\"><div class=\"media-body\">\n<div class=\"popover " + direction + "\">\n<div class=\"arrow\"></div>\n<h3 class=\"popover-title media-heading media-name\">" + lang.YOU + "</h3>\n<div class=\"popover-content\">" + json.message + "</div>\n</div>\n</div>\n<div class=\"media-right media-middle\">\n<img class=\"media-object img-circle\" src=\"" + getMyAvatar() + "\" alt=\"User Avatar\" width=\"60\" height=\"60\">\n</div>\n</div>";
 
     } else {
 
         // Sender is another user
-        avatar = getAvatar(json.name);
 
-        html = "<div class=\"media\">\n<div class=\"media-left media-middle\">\n<img class=\"media-object img-circle\" src=\"" + avatar + "\" alt=\"User Avatar\" width=\"60\" height=\"60\">\n</div>\n<div class=\"media-body well\">\n<h4 class=\"media-heading media-name\">" + json.name + "</h4>\n" + json.message + "\n</div>\n</div>";
+        avatar = getAvatar(json.name);
+        direction = lang.is_rtl ? "left" : "right";
+
+        html = "<div class=\"media\">\n<div class=\"media-left media-middle\">\n<img class=\"media-object img-circle\" src=\"" + avatar + "\" alt=\"User Avatar\" width=\"60\" height=\"60\">\n</div>\n<div class=\"media-body\">\n<div class=\"popover " + direction + "\">\n<div class=\"arrow\"></div>\n<h3 class=\"popover-title media-heading media-name\">" + json.name + "</h3>\n<div class=\"popover-content\">" + json.message + "</div>\n</div>\n</div>";
 
     }
 
@@ -69,20 +74,26 @@ function appendTextMessage(json) {
 function appendImageMessage(json) {
     var html = null;
     var avatar = null;
+    var direction = null;
 
 
     if (json.name == myName) {
 
         // Sender is this user himself
 
-        html = "<div class=\"media\"><div class=\"media-body well mine\">\n<h4 class=\"media-heading media-name\">" + lang.YOU + "</h4>\n<img src=\"" + dataMime(json.image, json.image_type) + "\" class=\"img-responsive img-rounded center-block\" alt=\"Attachment image\"><br>\n" + json.message + "\n</div>\n<div class=\"media-right media-middle\">\n<img class=\"media-object img-circle\" src=\"" + getMyAvatar() + "\" alt=\"User Avatar\" width=\"60\" height=\"60\">\n</div>\n</div>";
+        direction = lang.is_rtl ? "right" : "left";
+
+        html = "<div class=\"media\"><div class=\"media-body\"><div class=\"popover " + direction + "\">\n<div class=\"arrow\"></div>\n<h3 class=\"popover-title media-heading media-name\">" + lang.YOU + "</h3>\n<div class=\"popover-content\">\n<img src=\"" + dataMime(json.image, json.image_type) + "\" class=\"img-responsive img-rounded center-block\" alt=\"Attachment image\"><br>\n" + json.message + "\n</div>\n</div>\n</div>\n<div class=\"media-right media-middle\">\n<img class=\"media-object img-circle\" src=\"" + getMyAvatar() + "\" alt=\"User Avatar\" width=\"60\" height=\"60\">\n</div>\n</div>";
 
     } else {
 
         // Sender is another user
+
         avatar = getAvatar(json.name);
 
-        html = "<div class=\"media\">\n<div class=\"media-left media-middle\">\n<img class=\"media-object img-circle\" src=\"" + avatar + "\" alt=\"User Avatar\" width=\"60\" height=\"60\">\n</div>\n<div class=\"media-body well\">\n<h4 class=\"media-heading media-name\">" + json.name + "</h4>\n<img src=\"" + dataMime(json.image, json.image_type) + "\" class=\"img-responsive img-rounded center-block\" alt=\"Attachment image\"><br>\n" + json.message + "\n</div>\n</div>";
+        direction = lang.is_rtl ? "left" : "right";
+
+        html = "<div class=\"media\">\n<div class=\"media-left media-middle\">\n<img class=\"media-object img-circle\" src=\"" + avatar + "\" alt=\"User Avatar\" width=\"60\" height=\"60\">\n</div>\n<div class=\"media-body\">\n<div class=\"popover " + direction + "\">\n<div class=\"arrow\"></div>\n<h3 class=\"popover-title media-heading media-name\">" + json.name + "</h3>\n<div class=\"popover-content\">\n<img src=\"" + dataMime(json.image, json.image_type) + "\" class=\"img-responsive img-rounded center-block\" alt=\"Attachment image\"><br>\n" + json.message + "\n</div>\n</div>\n</div>\n</div>";
 
     }
 

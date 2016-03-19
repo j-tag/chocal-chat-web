@@ -19,11 +19,6 @@ textarea {
     padding-top: 40px;
 }
 
-/* Used on message that current user is sent */
-.mine {
-    background-color: rgba(71, 229, 35, 0.1);
-}
-
 .media-name {
     color: #ea8627;
 }
@@ -39,4 +34,15 @@ textarea {
 
 .panel-title {
     padding-top: 5px;
+}
+
+.media-body .popover {
+    position: relative;
+    display: block;
+    margin: 20px;
+    z-index: 1;
+}
+
+.media-body .popover.left {
+    float: right;
 }
