@@ -349,11 +349,11 @@ $chocal = new ChocalWeb();
 switch ($chocal->lang->getLang()) :
 case 'fa':?>
 	<!-- Persian language -->
-	<script src="assets/js/lang.fa.js"></script>
+	<script src="assets/js/languages/fa.js"></script>
 <?php break;
 default: ?>
 	<!-- English language -->
-	<script src="assets/js/lang.en.js"></script>
+	<script src="assets/js/languages/en.js"></script>
 	<?php
 	break;
 endswitch; ?>
