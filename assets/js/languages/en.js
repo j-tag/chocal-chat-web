@@ -22,5 +22,7 @@ var lang = {
     SEEMS_YOUR_BROWSER_DONT_SUPPORT_WEB_SOCKET: 'Sorry!, but it seems your browser don\'t support web sockets or it is disabled.',
     CONNECTION_TO_CHOCAL_SERVER_LOST: 'Connection to Chocal Server has been lost.',
     FILE_REMOVED: 'File Removed',
-    ATTACHMENT_IMAGE_HAS_BEEN_REMOVED: 'Attachment image has been removed.'
+    ATTACHMENT_IMAGE_HAS_BEEN_REMOVED: 'Attachment image has been removed.',
+    PHOTO: 'Photo',
+    NEW_EVENT: 'New Event'
 };

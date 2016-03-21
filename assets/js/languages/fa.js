@@ -22,5 +22,7 @@ var lang = {
     SEEMS_YOUR_BROWSER_DONT_SUPPORT_WEB_SOCKET: 'متاسفیم!، اما به نظر میرسد که مرورگر شما از Web Socket پشتیبانی نمی کند و یا اینکه غیر فعال است.',
     CONNECTION_TO_CHOCAL_SERVER_LOST: 'ارتباط با چوکال سرور از دست رفت.',
     FILE_REMOVED: 'فایل حذف شد',
-    ATTACHMENT_IMAGE_HAS_BEEN_REMOVED: 'تصویر ضمیمه حذف شد.'
+    ATTACHMENT_IMAGE_HAS_BEEN_REMOVED: 'تصویر ضمیمه حذف شد.',
+    PHOTO: 'عکس',
+    NEW_EVENT: 'رویداد جدید'
 };

@@ -12,6 +12,7 @@ var $attachButton = $('#attach-button');
 var userIds = [];
 var userAvatars = [];
 var onlineCounter = 0;
+var isActive = true;
 
 // Scrolls chat area to end
 function goToLast() {
@@ -68,6 +69,9 @@ function appendTextMessage(json) {
     // Scroll down
     goToLast();
 
+    // Show a notification
+    spawnNotification(json.message, json.name);
+
 }
 
 // This function will show a Chocal image message type in chat area
@@ -103,6 +107,9 @@ function appendImageMessage(json) {
     // Scroll down
     goToLast();
 
+    // Show a notification
+    spawnNotification(lang.PHOTO, json.name);
+
 }
 
 // This function will show a Chocal Chat info message in chat view
@@ -111,6 +118,8 @@ function appendInfoMessage(json) {
     $(html).hide().appendTo($chatArea).slideDown();
     // Scroll down
     goToLast();
+    // Show a notification
+    spawnNotification(json.message, lang.NEW_EVENT);
 }
 
 // This function will show errors in an alert box in join form and chat page
@@ -577,6 +586,22 @@ function checkSocket() {
     $checkStateButton.attr('data-content', strState);
 }
 
+// Spawn a notification
+function spawnNotification(theBody, theTitle) {
+
+    // Only show notifications when user is not in chocal tab
+    if (isActive) {
+        return;
+    }
+
+    var options = {
+        body: theBody,
+        icon: 'assets/img/chocal-logo-256.png'
+    };
+    var n = new Notification(theTitle, options);
+    setTimeout(n.close.bind(n), 10000);
+}
+
 // Page load up function
 $(function () {
 
@@ -611,4 +636,22 @@ $(function () {
 
     // Initialize popovers
     $('[data-toggle="popover"]').popover();
+
+    // When browser tab gets focus
+    $(window).focus(function () {
+        isActive = true;
+        console.info('Window got focus');
+    });
+
+    // When browser tab lost focus
+    $(window).blur(function () {
+        isActive = false;
+        console.info('Window lost focus');
+    });
+
+});
+
+// Get permission to run notifications
+Notification.requestPermission().then(function (result) {
+    console.info('Notification permission request result:', result);
 });
