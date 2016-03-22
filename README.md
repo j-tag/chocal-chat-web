@@ -1,6 +1,8 @@
 # Chocal Chat Web Client
 This repository contains Chocal Chat Web client. A simple web client for Chocal Chat application to show a chat client in major browsers.
 
+![Chocal Web](https://puresoftware.org/images/chocal-chat/github/chocal-web.png)
+
 # First Things First
 You need to run Chocal Chat Server application to your local network. You can take it from here: https://github.com/J-TAG/chocal-chat-server
 
