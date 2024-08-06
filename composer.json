@@ -1,6 +1,6 @@
 {
   "require": {
-    "twbs/bootstrap": "3.*",
+    "twbs/bootstrap": "^3.4.1",
     "puresoft/easy-lang": "^2.0",
     "components/jquery": "1.*"
   }
